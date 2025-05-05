@@ -13,6 +13,7 @@ interface ProfileBubbleProps {
   size?: "sm" | "md" | "lg";
   isBlurred?: boolean;
   messageColor?: "blue" | "yellow" | "pink" | "green";
+  delay?: number;
 }
 
 const ProfileBubble: React.FC<ProfileBubbleProps> = ({ 
@@ -21,12 +22,13 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   position, 
   size = "md",
   isBlurred = false,
-  messageColor = "blue"
+  messageColor = "blue",
+  delay = 0
 }) => {
   const sizeClasses = {
-    sm: "w-16 h-16",
-    md: "w-20 h-20",
-    lg: "w-24 h-24"
+    sm: "w-14 h-14",
+    md: "w-24 h-24",
+    lg: "w-28 h-28"
   };
   
   const messageColorClasses = {
@@ -36,17 +38,25 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
     green: "bg-[#4CAF50] text-white"
   };
 
+  const animationDelay = `${delay}ms`;
+
   return (
-    <div className="absolute" style={position as React.CSSProperties}>
-      <div className="relative">
+    <div 
+      className={`absolute animate-fade-in hover:scale-105 transition-transform duration-300`}
+      style={{
+        ...position as React.CSSProperties,
+        animationDelay
+      }}
+    >
+      <div className="relative group">
         <img 
           src={image} 
           alt="Profile" 
-          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""}`} 
+          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg`} 
         />
         
         {message && (
-          <div className={`absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-md text-sm whitespace-nowrap ${messageColorClasses[messageColor]}`}>
+          <div className={`absolute -bottom-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap ${messageColorClasses[messageColor]} shadow-md opacity-100 transition-all duration-300`}>
             {message}
           </div>
         )}
