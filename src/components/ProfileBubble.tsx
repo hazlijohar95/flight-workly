@@ -12,6 +12,7 @@ interface ProfileBubbleProps {
   };
   size?: "sm" | "md" | "lg";
   isBlurred?: boolean;
+  messageColor?: "blue" | "yellow" | "pink" | "green";
 }
 
 const ProfileBubble: React.FC<ProfileBubbleProps> = ({ 
@@ -19,12 +20,20 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   message, 
   position, 
   size = "md",
-  isBlurred = false
+  isBlurred = false,
+  messageColor = "blue"
 }) => {
   const sizeClasses = {
     sm: "w-16 h-16",
-    md: "w-24 h-24",
-    lg: "w-32 h-32"
+    md: "w-20 h-20",
+    lg: "w-24 h-24"
+  };
+  
+  const messageColorClasses = {
+    blue: "bg-[#33C3F0] text-white",
+    yellow: "bg-[#FFC107] text-gray-800",
+    pink: "bg-[#FF4081] text-white",
+    green: "bg-[#4CAF50] text-white"
   };
 
   return (
@@ -33,11 +42,11 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
         <img 
           src={image} 
           alt="Profile" 
-          className={`profile-img ${sizeClasses[size]} ${isBlurred ? "filter blur-sm" : ""}`} 
+          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""}`} 
         />
         
         {message && (
-          <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 highlight-bubble">
+          <div className={`absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-md text-sm whitespace-nowrap ${messageColorClasses[messageColor]}`}>
             {message}
           </div>
         )}

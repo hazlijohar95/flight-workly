@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,14 +95,5 @@
     stroke: #000;
     stroke-width: 2px;
     fill: none;
-  }
-
-  .highlight-bubble {
-    @apply bg-blue-500 text-white px-3 py-1 rounded-md text-sm whitespace-nowrap;
-  }
-
-  .profile-img {
-    @apply rounded-full object-cover border-2 border-white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 }
