@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProfileBubbleProps {
   image: string;
@@ -25,6 +26,8 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   messageColor = "blue",
   delay = 0
 }) => {
+  const [imageError, setImageError] = useState(false);
+  
   const sizeClasses = {
     sm: "w-14 h-14",
     md: "w-24 h-24",
@@ -39,6 +42,11 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   };
 
   const animationDelay = `${delay}ms`;
+  
+  const handleImageError = () => {
+    console.error(`Failed to load image: ${image}`);
+    setImageError(true);
+  };
 
   return (
     <div 
@@ -49,11 +57,20 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
       }}
     >
       <div className="relative group">
-        <img 
-          src={image} 
-          alt="Profile" 
-          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`} 
-        />
+        {!imageError ? (
+          <img 
+            src={image} 
+            alt="Profile" 
+            className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`}
+            onError={handleImageError}
+          />
+        ) : (
+          <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md animate-float`}>
+            <AvatarFallback className="bg-gray-300 text-gray-600">
+              {size === "sm" ? "?" : "User"}
+            </AvatarFallback>
+          </Avatar>
+        )}
         
         {message && (
           <div className={`absolute -bottom-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap ${messageColorClasses[messageColor]} shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300`}>
