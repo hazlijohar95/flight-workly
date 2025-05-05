@@ -91,6 +91,26 @@ const Index = () => {
             delay={700}
           />
           
+          {/* New profile bubble for first missing image - person with glasses */}
+          <ProfileBubble
+            image="/lovable-uploads/f877774b-dad1-499f-a2df-913c11800742.png"
+            message="Looking for talented developers in my area"
+            position={{ top: "35%", right: "30%" }}
+            size="lg"
+            messageColor="blue"
+            delay={450}
+          />
+          
+          {/* New profile bubble for second missing image - person in black shirt */}
+          <ProfileBubble
+            image="/lovable-uploads/b9656106-61f1-411d-8d42-57fd9533067f.png"
+            message="Just completed my first gig through the platform!"
+            position={{ bottom: "30%", right: "10%" }}
+            size="lg"
+            messageColor="pink"
+            delay={550}
+          />
+          
           {/* Blurred profile images */}
           <ProfileBubble 
             image="/lovable-uploads/7974a8f3-eafe-4a53-9f87-454268c85953.png"
@@ -102,7 +122,7 @@ const Index = () => {
           
           <ProfileBubble 
             image="/lovable-uploads/fb6b2b87-4f6a-467e-ac15-e4751120082c.png"
-            position={{ bottom: "30%", right: "12%" }}
+            position={{ bottom: "30%", right: "40%" }}
             size="sm"
             isBlurred={true}
             delay={800}
@@ -122,14 +142,6 @@ const Index = () => {
             size="sm"
             isBlurred={true}
             delay={550}
-          />
-          
-          <ProfileBubble 
-            image="/lovable-uploads/f877774b-dad1-499f-a2df-913c11800742.png"
-            position={{ bottom: "25%", left: "35%" }}
-            size="sm"
-            isBlurred={true}
-            delay={650}
           />
           
           {/* Central content */}
