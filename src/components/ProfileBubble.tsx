@@ -16,7 +16,7 @@ interface ProfileBubbleProps {
   isBlurred?: boolean;
   messageColor?: "blue" | "yellow" | "pink" | "green";
   delay?: number;
-  skill?: string; // New prop for skill label
+  skill?: string;
 }
 
 const ProfileBubble: React.FC<ProfileBubbleProps> = ({ 
@@ -44,6 +44,10 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
     green: "bg-[#4CAF50] text-white"
   };
 
+  const blurClasses = isBlurred 
+    ? "opacity-40 filter blur-sm z-0" 
+    : "z-10 hover:scale-105 transition-transform duration-300";
+
   const animationDelay = `${delay}ms`;
   
   const handleImageError = () => {
@@ -53,21 +57,21 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
 
   return (
     <div 
-      className={`absolute animate-fade-in hover:scale-105 transition-transform duration-300`}
+      className={`absolute animate-fade-in ${blurClasses}`}
       style={{
         ...position as React.CSSProperties,
         animationDelay
       }}
     >
       <div className="relative group">
-        {skill ? (
+        {skill && !isBlurred ? (
           <Tooltip>
             <TooltipTrigger asChild>
               {!imageError ? (
                 <img 
                   src={image} 
                   alt="Profile" 
-                  className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`}
+                  className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md transition-all duration-300 hover:shadow-lg animate-float`}
                   onError={handleImageError}
                 />
               ) : (
@@ -101,7 +105,7 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
           </>
         )}
         
-        {message && (
+        {message && !isBlurred && (
           <div className={`absolute -bottom-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap ${messageColorClasses[messageColor]} shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300`}>
             {message}
           </div>

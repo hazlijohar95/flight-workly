@@ -92,10 +92,10 @@
   /* Custom classes */
   .dotted-path {
     stroke-dasharray: 5, 5;
-    stroke: #000;
-    stroke-width: 2px;
+    stroke: rgba(0, 0, 0, 0.4);
+    stroke-width: 1.5px;
     fill: none;
-    animation: dash 15s linear infinite;
+    animation: dash 20s linear infinite;
   }
   
   @keyframes dash {
@@ -137,7 +137,7 @@
 }
 
 .path-dot {
-  fill: #000;
+  fill: rgba(0, 0, 0, 0.4);
   transform-origin: center;
   transition: all 0.3s ease;
 }

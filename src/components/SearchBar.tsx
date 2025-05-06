@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 
 interface SearchBarProps {
   placeholder: string;
@@ -11,7 +10,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, label }) => {
   const [isFocused, setIsFocused] = useState(false);
   
   return (
-    <div className="relative w-full max-w-3xl mx-auto bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-100">
+    <div className="relative w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100">
       {label && (
         <label className="block text-left mb-2 text-lg font-medium text-gray-800">
           {label}
@@ -21,11 +20,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, label }) => {
         <input
           type="text"
           placeholder={placeholder}
-          className="w-full px-5 py-4 rounded-full md:rounded-l-full md:rounded-r-none text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary pr-14 transition-all duration-300 hover:shadow-md"
+          className="w-full px-5 py-4 rounded-full md:rounded-l-full md:rounded-r-none text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF4081] pr-14 transition-all duration-300 hover:shadow-md"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
-        <button className="w-full md:w-auto px-6 py-4 bg-[#4CAF50] text-white font-medium rounded-full md:rounded-l-none md:rounded-r-full hover:bg-[#3d9040] transition-all duration-300 transform hover:scale-105 whitespace-nowrap">
+        <button className="w-full md:w-auto px-6 py-4 bg-[#4CAF50] text-white font-medium rounded-full md:rounded-l-none md:rounded-r-full hover:bg-[#3d9040] transition-all duration-300 transform hover:scale-105 whitespace-nowrap shadow-md">
           Post job & get offers instantly
         </button>
       </div>
