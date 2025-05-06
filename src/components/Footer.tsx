@@ -1,12 +1,9 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Facebook, Instagram, Linkedin, Twitter, Mail } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-white border-t border-gray-100 pt-12 pb-8">
+  return <footer className="bg-white border-t border-gray-100 pt-12 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -44,7 +41,7 @@ const Footer = () => {
           <div className="col-span-1">
             <h4 className="font-medium text-gray-800 mb-4">Join Our Network</h4>
             <p className="text-sm text-gray-600 mb-4">Be the first to know about new features and updates.</p>
-            <Button className="bg-[#4CAF50] hover:bg-[#3d9040] transition-colors w-full">
+            <Button className="transition-colors w-full bg-[#121212]">
               Get Started Now
             </Button>
             
@@ -74,8 +71,6 @@ const Footer = () => {
           <p>© {new Date().getFullYear()} FlightWorkly. All rights reserved.</p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
