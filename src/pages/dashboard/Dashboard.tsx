@@ -57,7 +57,9 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500 mb-4">Browse available jobs and submit proposals</p>
-                <Button variant="outline" size="sm">Find Jobs</Button>
+                <Link to="/dashboard/jobs">
+                  <Button variant="outline" size="sm">Find Jobs</Button>
+                </Link>
               </CardContent>
             </Card>
             
@@ -69,7 +71,9 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500 mb-4">Track job applications and bids</p>
-                <Button variant="outline" size="sm">View Applications</Button>
+                <Link to="/dashboard/jobs?tab=applied">
+                  <Button variant="outline" size="sm">View Applications</Button>
+                </Link>
               </CardContent>
             </Card>
             
@@ -100,7 +104,9 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500 mb-4">Create a new job posting</p>
-                <Button variant="outline" size="sm">Create Job</Button>
+                <Link to="/dashboard/jobs/new">
+                  <Button variant="outline" size="sm">Create Job</Button>
+                </Link>
               </CardContent>
             </Card>
             
@@ -112,7 +118,9 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500 mb-4">Manage your active job listings</p>
-                <Button variant="outline" size="sm">View Jobs</Button>
+                <Link to="/dashboard/jobs">
+                  <Button variant="outline" size="sm">View Jobs</Button>
+                </Link>
               </CardContent>
             </Card>
             
@@ -138,13 +146,15 @@ export default function Dashboard() {
           <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
             <h3 className="font-medium text-amber-800 mb-1">Admin Access</h3>
             <p className="text-sm text-amber-700 mb-2">You have admin privileges.</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-amber-100 hover:bg-amber-200 border-amber-300"
-            >
-              Open Admin Panel
-            </Button>
+            <Link to="/dashboard/admin/invites">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-amber-100 hover:bg-amber-200 border-amber-300"
+              >
+                Open Admin Panel
+              </Button>
+            </Link>
           </div>
         )}
       </div>

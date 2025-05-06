@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
-import { Menu, User, LayoutDashboard, Settings, LogOut } from "lucide-react";
+import { Menu, User, LayoutDashboard, Settings, LogOut, Briefcase } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -23,6 +23,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Jobs", href: "/dashboard/jobs", icon: Briefcase },
     { name: "Profile", href: "/dashboard/profile", icon: User },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
@@ -197,10 +198,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex items-center justify-between h-16 px-4">
           <Logo showTagline={false} />
           
-          {/* Fixed: Wrapped SheetTrigger inside Sheet component */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
               </Button>

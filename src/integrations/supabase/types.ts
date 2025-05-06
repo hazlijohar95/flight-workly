@@ -51,6 +51,91 @@ export type Database = {
         }
         Relationships: []
       }
+      bids: {
+        Row: {
+          created_at: string
+          fee: number
+          id: string
+          job_id: string
+          note: string | null
+          portfolio_url: string | null
+          status: string
+          time_estimate: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fee: number
+          id?: string
+          job_id: string
+          note?: string | null
+          portfolio_url?: string | null
+          status?: string
+          time_estimate: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fee?: number
+          id?: string
+          job_id?: string
+          note?: string | null
+          portfolio_url?: string | null
+          status?: string
+          time_estimate?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chats: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string
+          message: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id: string
+          message: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string
+          message?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freelancer_profiles: {
         Row: {
           created_at: string
@@ -130,6 +215,51 @@ export type Database = {
           },
         ]
       }
+      jobs: {
+        Row: {
+          bidding_end_time: string
+          budget: number
+          category: string
+          created_at: string
+          currency: string
+          deadline: string
+          description: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bidding_end_time: string
+          budget: number
+          category: string
+          created_at?: string
+          currency?: string
+          deadline: string
+          description?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bidding_end_time?: string
+          budget?: number
+          category?: string
+          created_at?: string
+          currency?: string
+          deadline?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -169,11 +299,53 @@ export type Database = {
         }
         Relationships: []
       }
+      ratings: {
+        Row: {
+          created_at: string
+          feedback: string | null
+          id: string
+          job_id: string
+          rated_user_id: string
+          rater_id: string
+          rating: number
+        }
+        Insert: {
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          job_id: string
+          rated_user_id: string
+          rater_id: string
+          rating: number
+        }
+        Update: {
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          job_id?: string
+          rated_user_id?: string
+          rater_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      has_accepted_bid: {
+        Args: { job_id: string; user_id: string }
+        Returns: boolean
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean

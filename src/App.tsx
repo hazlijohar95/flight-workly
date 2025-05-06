@@ -18,6 +18,9 @@ import Profile from "./pages/dashboard/Profile";
 import BetaAccess from "./pages/BetaAccess";
 import BetaInvites from "./pages/dashboard/admin/BetaInvites";
 import Settings from "./pages/dashboard/Settings";
+import JobsListPage from "./pages/jobs/JobsListPage";
+import NewJobPage from "./pages/jobs/NewJobPage";
+import JobDetailPage from "./pages/jobs/JobDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,11 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/profile" element={<Profile />} />
             <Route path="/dashboard/settings" element={<Settings />} />
+            
+            {/* Jobs routes */}
+            <Route path="/dashboard/jobs" element={<JobsListPage />} />
+            <Route path="/dashboard/jobs/new" element={<NewJobPage />} />
+            <Route path="/dashboard/jobs/:jobId" element={<JobDetailPage />} />
             
             {/* Admin routes */}
             <Route path="/dashboard/admin/invites" element={<BetaInvites />} />
