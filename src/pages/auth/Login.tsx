@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function Login() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -38,9 +40,13 @@ export default function Login() {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsLoading(true);
+      setError(null);
       await signIn(data.email, data.password);
-    } catch (error) {
+      // Explicitly navigate to dashboard after successful login
+      navigate("/dashboard");
+    } catch (error: any) {
       console.error(error);
+      setError(error.message || "Failed to sign in");
     } finally {
       setIsLoading(false);
     }
@@ -54,6 +60,12 @@ export default function Login() {
           Sign in to access your account
         </p>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-6">
+          {error}
+        </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">

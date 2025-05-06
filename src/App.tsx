@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import WaitlistPage from "./pages/WaitlistPage";
 import LandingPage from "./pages/LandingPage";
 import Index from "./pages/Index";
@@ -17,6 +17,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Profile from "./pages/dashboard/Profile";
 import BetaAccess from "./pages/BetaAccess";
 import BetaInvites from "./pages/dashboard/admin/BetaInvites";
+import Settings from "./pages/dashboard/Settings";
 
 const queryClient = new QueryClient();
 
@@ -43,9 +44,14 @@ const App = () => (
             {/* Dashboard routes - protected */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/profile" element={<Profile />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
             
             {/* Admin routes */}
             <Route path="/dashboard/admin/invites" element={<BetaInvites />} />
+            <Route path="/dashboard/admin/users" element={<BetaInvites />} /> {/* Placeholder */}
+            
+            {/* Redirect /auth to /auth/login */}
+            <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
