@@ -319,35 +319,37 @@ export default function Profile() {
               <CardTitle>I am a...</CardTitle>
             </CardHeader>
             <CardContent>
-              <FormField
-                control={profileForm.control}
-                name="user_type"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={(value: "freelancer" | "job_poster") => userTypeChanged(value)}
-                        defaultValue={field.value || undefined}
-                        className="flex flex-col space-y-1"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="freelancer" id="freelancer" />
-                          <FormLabel htmlFor="freelancer" className="cursor-pointer">
-                            Freelancer (I want to work on projects)
-                          </FormLabel>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="job_poster" id="job_poster" />
-                          <FormLabel htmlFor="job_poster" className="cursor-pointer">
-                            Business (I want to hire freelancers)
-                          </FormLabel>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Form {...profileForm}>
+                <FormField
+                  control={profileForm.control}
+                  name="user_type"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={(value: "freelancer" | "job_poster") => userTypeChanged(value)}
+                          defaultValue={field.value || undefined}
+                          className="flex flex-col space-y-1"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="freelancer" id="freelancer" />
+                            <FormLabel htmlFor="freelancer" className="cursor-pointer">
+                              Freelancer (I want to work on projects)
+                            </FormLabel>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="job_poster" id="job_poster" />
+                            <FormLabel htmlFor="job_poster" className="cursor-pointer">
+                              Business (I want to hire freelancers)
+                            </FormLabel>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Form>
             </CardContent>
           </Card>
           
