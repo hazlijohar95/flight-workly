@@ -165,3 +165,22 @@
 .path-dot:hover {
   animation: pulse-dot 1.5s infinite;
 }
+
+/* Footer styles */
+.footer-link {
+  @apply transition-colors duration-200 hover:text-[#FF4081];
+}
+
+.social-icon {
+  @apply text-gray-500 hover:text-[#FF4081] transition-all duration-300 hover:scale-110;
+}
+
+/* Social icon hover effects */
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.social-icon:hover svg {
+  animation: icon-bounce 0.6s ease;
+}

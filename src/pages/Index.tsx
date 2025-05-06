@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import ProfileBubble from '../components/ProfileBubble';
+import Footer from '../components/Footer';
 
 const Index = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -11,7 +12,7 @@ const Index = () => {
   }, []);
   
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-x-hidden">
       {/* Top Banner */}
       <div className="bg-black text-white text-center py-2 text-xs">
         <span>Be an </span>
@@ -30,7 +31,7 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 relative pt-4 pb-20">
+      <main className="container mx-auto px-4 relative pt-4">
         {/* Profile Images with Connecting Path */}
         <div className="relative h-[80vh]">
           {/* SVG for dashed path - updated to create an orbital path around the center */}
@@ -137,6 +138,9 @@ const Index = () => {
           </div>
         </div>
       </main>
+      
+      {/* Footer Section */}
+      <Footer />
     </div>
   );
 };
