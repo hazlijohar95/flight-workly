@@ -1,76 +1,68 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Facebook, Instagram, Linkedin, Twitter, Mail } from 'lucide-react';
+
 const Footer = () => {
-  return <footer className="bg-white border-t border-gray-100 pt-12 pb-8">
+  return (
+    <footer className="bg-white pt-12 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="col-span-1">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          {/* Logo and tagline */}
+          <div className="mb-6 md:mb-0">
             <h3 className="font-bold text-xl">
               <span className="font-normal">FLIGHT</span>WORKLY
             </h3>
-            <p className="text-sm text-gray-600 mt-2">
-              Fast Freelance Hiring. Connecting skilled professionals with clients in need of quality work.
-            </p>
+            <p className="text-sm text-gray-600 mt-1">Fast Freelance Hiring</p>
           </div>
           
-          {/* Quick Links */}
-          <div className="col-span-1">
-            <h4 className="font-medium text-gray-800 mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-600 hover:text-[#FF4081] transition-colors">About Us</Link></li>
-              <li><Link to="/how-it-works" className="text-gray-600 hover:text-[#FF4081] transition-colors">How It Works</Link></li>
-              <li><Link to="/careers" className="text-gray-600 hover:text-[#FF4081] transition-colors">Careers</Link></li>
-              <li><Link to="/contact" className="text-gray-600 hover:text-[#FF4081] transition-colors">Contact</Link></li>
-            </ul>
-          </div>
-          
-          {/* Resources */}
-          <div className="col-span-1">
-            <h4 className="font-medium text-gray-800 mb-4">Legal</h4>
-            <ul className="space-y-2">
-              <li><Link to="/terms" className="text-gray-600 hover:text-[#FF4081] transition-colors">Terms of Service</Link></li>
-              <li><Link to="/privacy" className="text-gray-600 hover:text-[#FF4081] transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cookies" className="text-gray-600 hover:text-[#FF4081] transition-colors">Cookie Policy</Link></li>
-            </ul>
-          </div>
-          
-          {/* Newsletter */}
-          <div className="col-span-1">
-            <h4 className="font-medium text-gray-800 mb-4">Join Our Network</h4>
-            <p className="text-sm text-gray-600 mb-4">Be the first to know about new features and updates.</p>
-            <Button className="transition-colors w-full bg-[#121212]">
-              Get Started Now
-            </Button>
-            
-            {/* Social Media Links */}
-            <div className="flex items-center space-x-4 mt-6">
-              <a href="https://facebook.com" aria-label="Facebook" className="text-gray-500 hover:text-[#FF4081] transition-transform hover:scale-110">
-                <Facebook size={20} />
-              </a>
-              <a href="https://twitter.com" aria-label="Twitter" className="text-gray-500 hover:text-[#FF4081] transition-transform hover:scale-110">
-                <Twitter size={20} />
-              </a>
-              <a href="https://instagram.com" aria-label="Instagram" className="text-gray-500 hover:text-[#FF4081] transition-transform hover:scale-110">
-                <Instagram size={20} />
-              </a>
-              <a href="https://linkedin.com" aria-label="LinkedIn" className="text-gray-500 hover:text-[#FF4081] transition-transform hover:scale-110">
-                <Linkedin size={20} />
-              </a>
-              <a href="mailto:info@flightworkly.com" aria-label="Email" className="text-gray-500 hover:text-[#FF4081] transition-transform hover:scale-110">
-                <Mail size={20} />
-              </a>
-            </div>
+          {/* Social Media Links */}
+          <div className="flex items-center space-x-5">
+            <a href="https://facebook.com" aria-label="Facebook" className="social-icon">
+              <Facebook size={20} />
+            </a>
+            <a href="https://twitter.com" aria-label="Twitter" className="social-icon">
+              <Twitter size={20} />
+            </a>
+            <a href="https://instagram.com" aria-label="Instagram" className="social-icon">
+              <Instagram size={20} />
+            </a>
+            <a href="https://linkedin.com" aria-label="LinkedIn" className="social-icon">
+              <Linkedin size={20} />
+            </a>
+            <a href="mailto:info@flightworkly.com" aria-label="Email" className="social-icon">
+              <Mail size={20} />
+            </a>
           </div>
         </div>
         
+        <Separator className="my-6" />
+        
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          {/* Legal Links */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 mb-6 md:mb-0">
+            <Link to="/terms" className="text-sm text-gray-600 hover:text-[#FF4081] transition-colors">Terms</Link>
+            <Link to="/privacy" className="text-sm text-gray-600 hover:text-[#FF4081] transition-colors">Privacy</Link>
+            <Link to="/cookies" className="text-sm text-gray-600 hover:text-[#FF4081] transition-colors">Cookies</Link>
+            <Link to="/about" className="text-sm text-gray-600 hover:text-[#FF4081] transition-colors">About Us</Link>
+            <Link to="/contact" className="text-sm text-gray-600 hover:text-[#FF4081] transition-colors">Contact</Link>
+          </div>
+          
+          {/* CTA Button */}
+          <Button className="bg-[#121212] hover:bg-black transition-colors">
+            Get Started
+          </Button>
+        </div>
+        
         {/* Copyright */}
-        <div className="border-t border-gray-100 mt-10 pt-6 text-center text-sm text-gray-500">
+        <div className="mt-8 text-center text-xs text-gray-500">
           <p>© {new Date().getFullYear()} FlightWorkly. All rights reserved.</p>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
+
 export default Footer;
