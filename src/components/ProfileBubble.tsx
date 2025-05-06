@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { colors } from '../theme/colors';
+import { animationClasses } from '../utils/animations';
 
 interface ProfileBubbleProps {
   image: string;
@@ -17,6 +19,7 @@ interface ProfileBubbleProps {
   messageColor?: "blue" | "yellow" | "pink" | "green";
   delay?: number;
   skill?: string;
+  id?: string;
 }
 
 const ProfileBubble: React.FC<ProfileBubbleProps> = ({ 
@@ -27,7 +30,8 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   isBlurred = false,
   messageColor = "blue",
   delay = 0,
-  skill
+  skill,
+  id
 }) => {
   const [imageError, setImageError] = useState(false);
   
@@ -38,10 +42,10 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   };
   
   const messageColorClasses = {
-    blue: "bg-[#33C3F0] text-white",
-    yellow: "bg-[#FFC107] text-gray-800",
-    pink: "bg-[#FF4081] text-white",
-    green: "bg-[#4CAF50] text-white"
+    blue: `bg-[${colors.message.blue}] text-white`,
+    yellow: `bg-[${colors.message.yellow}] text-gray-800`,
+    pink: `bg-[${colors.message.pink}] text-white`,
+    green: `bg-[${colors.message.green}] text-white`
   };
 
   const blurClasses = isBlurred 
@@ -57,11 +61,12 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
 
   return (
     <div 
-      className={`absolute animate-fade-in ${blurClasses}`}
+      className={`absolute ${animationClasses.fadeIn} ${blurClasses}`}
       style={{
         ...position as React.CSSProperties,
         animationDelay
       }}
+      data-testid={`profile-bubble-${id}`}
     >
       <div className="relative group">
         {skill && !isBlurred ? (
@@ -70,12 +75,12 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
               {!imageError ? (
                 <img 
                   src={image} 
-                  alt="Profile" 
-                  className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md transition-all duration-300 hover:shadow-lg animate-float`}
+                  alt={skill} 
+                  className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md transition-all duration-300 hover:shadow-lg ${animationClasses.float}`}
                   onError={handleImageError}
                 />
               ) : (
-                <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md animate-float`}>
+                <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md ${animationClasses.float}`}>
                   <AvatarFallback className="bg-gray-300 text-gray-600">
                     {size === "sm" ? "?" : "User"}
                   </AvatarFallback>
@@ -92,11 +97,11 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
               <img 
                 src={image} 
                 alt="Profile" 
-                className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`}
+                className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg ${animationClasses.float}`}
                 onError={handleImageError}
               />
             ) : (
-              <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md animate-float`}>
+              <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md ${animationClasses.float}`}>
                 <AvatarFallback className="bg-gray-300 text-gray-600">
                   {size === "sm" ? "?" : "User"}
                 </AvatarFallback>

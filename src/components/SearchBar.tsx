@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { useIsMobile } from '../hooks/use-mobile';
+import { useResponsive } from '../hooks/use-responsive';
+import { colors } from '../theme/colors';
+import { stylePresets } from '../theme/colors';
 
 interface SearchBarProps {
   placeholder: string;
@@ -12,10 +14,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
   label
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const isMobile = useIsMobile();
+  const { isMobile } = useResponsive();
   
   return (
-    <div className="relative w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-xl shadow-md border border-gray-100">
+    <div className={`relative w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-xl shadow-md border border-gray-100`}>
       {label && (
         <label className="block text-left mb-2 text-base md:text-lg font-medium text-gray-800">
           {label}
@@ -31,7 +33,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onBlur={() => setIsFocused(false)} 
         />
         
-        <button className="w-full md:w-auto px-4 md:px-6 py-3 md:py-4 text-white font-medium rounded-full md:rounded-l-none md:rounded-r-full transition-all duration-300 transform hover:scale-105 whitespace-nowrap shadow-md bg-[#121212] text-sm md:text-base">
+        <button 
+          className="w-full md:w-auto px-4 md:px-6 py-3 md:py-4 text-white font-medium rounded-full md:rounded-l-none md:rounded-r-full transition-all duration-300 transform hover:scale-105 whitespace-nowrap shadow-md bg-[#121212] text-sm md:text-base"
+        >
           {isMobile ? "Post job now" : "Post job & get offers instantly"}
         </button>
       </div>

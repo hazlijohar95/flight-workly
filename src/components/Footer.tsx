@@ -4,22 +4,19 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Facebook, Instagram, Linkedin, Twitter, Mail } from 'lucide-react';
-import { useIsMobile } from '../hooks/use-mobile';
+import { useResponsive } from '../hooks/use-responsive';
+import Logo from './Logo';
+import { colors } from '../theme/colors';
 
 const Footer = () => {
-  const isMobile = useIsMobile();
+  const { isMobile } = useResponsive();
   
   return (
     <footer className="bg-white pt-8 md:pt-12 pb-6 md:pb-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8">
           {/* Logo and tagline */}
-          <div className="mb-6 md:mb-0">
-            <h3 className="font-bold text-xl">
-              <span className="font-normal">FLIGHT</span>WORKLY
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">Fast Freelance Hiring</p>
-          </div>
+          <Logo showTagline={true} className="mb-6 md:mb-0" />
           
           {/* Social Media Links */}
           <div className="flex items-center space-x-5">
