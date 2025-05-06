@@ -51,6 +51,85 @@ export type Database = {
         }
         Relationships: []
       }
+      freelancer_profiles: {
+        Row: {
+          created_at: string
+          headline: string | null
+          hourly_rate: number | null
+          id: string
+          portfolio_url: string | null
+          skills: string[] | null
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
+          created_at?: string
+          headline?: string | null
+          hourly_rate?: number | null
+          id: string
+          portfolio_url?: string | null
+          skills?: string[] | null
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          created_at?: string
+          headline?: string | null
+          hourly_rate?: number | null
+          id?: string
+          portfolio_url?: string | null
+          skills?: string[] | null
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelancer_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_poster_profiles: {
+        Row: {
+          company_name: string | null
+          company_size: string | null
+          company_website: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          company_size?: string | null
+          company_website?: string | null
+          created_at?: string
+          id: string
+          industry?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          company_size?: string | null
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_poster_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -62,6 +141,7 @@ export type Database = {
           is_beta_tester: boolean
           last_name: string | null
           updated_at: string
+          user_type: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -73,6 +153,7 @@ export type Database = {
           is_beta_tester?: boolean
           last_name?: string | null
           updated_at?: string
+          user_type?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -84,6 +165,7 @@ export type Database = {
           is_beta_tester?: boolean
           last_name?: string | null
           updated_at?: string
+          user_type?: string | null
         }
         Relationships: []
       }

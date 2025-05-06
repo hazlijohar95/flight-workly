@@ -17,6 +17,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (data: Partial<any>) => Promise<void>;
+  setUserType: (type: 'freelancer' | 'job_poster') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -168,6 +169,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const setUserType = async (type: 'freelancer' | 'job_poster') => {
+    try {
+      if (!user) throw new Error('No user logged in');
+      
+      // Update profile with user type
+      await updateProfile({ user_type: type });
+      
+      // Create corresponding specialized profile if it doesn't exist
+      if (type === 'freelancer') {
+        const { error } = await supabase
+          .from('freelancer_profiles')
+          .upsert({ 
+            id: user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('job_poster_profiles')
+          .upsert({ 
+            id: user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        
+        if (error) throw error;
+      }
+      
+      // Refetch profile to get updated data
+      fetchUserProfile(user.id);
+      
+    } catch (error: any) {
+      toast.error(error.message || 'Error setting user type');
+      throw error;
+    }
+  };
+
   const value = {
     session,
     user,
@@ -180,6 +220,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     resetPassword,
     updateProfile,
+    setUserType,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
