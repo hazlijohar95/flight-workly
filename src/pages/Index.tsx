@@ -74,7 +74,7 @@ const Index = () => {
             delay={200}
           />
 
-          {/* Sharp profile bubbles - evenly distributed along the path */}
+          {/* Sharp profile bubbles - existing ones */}
           <ProfileBubble 
             image="/lovable-uploads/b89a7188-4aea-414b-bdb3-032be4dee871.png"
             message="I just hired 3 bookkeepers in 3 hours!"
@@ -113,6 +113,27 @@ const Index = () => {
             messageColor="green"
             delay={700}
             skill="Developer"
+          />
+          
+          {/* New profile bubbles from uploaded images */}
+          <ProfileBubble 
+            image="/lovable-uploads/ef6879c7-9026-404d-baa2-97398f17cb05.png"
+            message="Found amazing technical talent in 24 hours!"
+            position={{ top: "30%", right: "5%" }}
+            size="lg"
+            messageColor="pink"
+            delay={450}
+            skill="Product Manager"
+          />
+          
+          <ProfileBubble 
+            image="/lovable-uploads/c3de960a-882f-443c-b503-eee317ff3dd8.png"
+            message="Built my entire tech team through this platform"
+            position={{ bottom: "35%", right: "15%" }}
+            size="lg"
+            messageColor="blue"
+            delay={550}
+            skill="Tech CEO"
           />
           
           {/* Central content */}
