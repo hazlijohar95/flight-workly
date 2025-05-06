@@ -2,6 +2,7 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useResponsive } from '../../hooks/use-responsive';
 
 type FloatingDotsProps = {
   count?: number;
@@ -10,12 +11,14 @@ type FloatingDotsProps = {
 const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
   const mesh = useRef<THREE.InstancedMesh>(null);
   const { viewport } = useThree();
+  const { isMobile } = useResponsive();
   
   // Create dots with random positions
   const dots = useMemo(() => {
     const temp = [];
     for (let i = 0; i < count; i++) {
-      const radius = 8 + Math.random() * 10;
+      // Smaller radius for mobile
+      const radius = isMobile ? (6 + Math.random() * 6) : (8 + Math.random() * 10);
       const angle = Math.random() * Math.PI * 2;
       temp.push({
         position: [
@@ -23,13 +26,14 @@ const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
           Math.sin(angle) * radius, 
           -5 - Math.random() * 5
         ] as [number, number, number],
-        speed: 0.2 + Math.random() * 0.3,
-        size: 0.05 + Math.random() * 0.1,
+        // Slower animation speed on mobile for better performance
+        speed: isMobile ? 0.1 + Math.random() * 0.2 : 0.2 + Math.random() * 0.3,
+        size: isMobile ? 0.04 + Math.random() * 0.08 : 0.05 + Math.random() * 0.1,
         opacity: 0.3 + Math.random() * 0.5
       });
     }
     return temp;
-  }, [count]);
+  }, [count, isMobile]);
   
   useFrame(({ clock }) => {
     if (!mesh.current) return;
@@ -41,9 +45,10 @@ const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
     dots.forEach((dot, i) => {
       const { position, speed, size } = dot;
       
-      // Calculate new position with small movement
-      const x = position[0] + Math.sin(time * speed * 0.3) * 0.2;
-      const y = position[1] + Math.cos(time * speed * 0.5) * 0.2;
+      // Calculate new position with small movement - reduced movement on mobile
+      const amplitude = isMobile ? 0.1 : 0.2;
+      const x = position[0] + Math.sin(time * speed * 0.3) * amplitude;
+      const y = position[1] + Math.cos(time * speed * 0.5) * amplitude;
       const z = position[2];
       
       // Set matrix for instanced mesh
@@ -59,7 +64,7 @@ const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
   
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
-      <sphereGeometry args={[1, 8, 8]} />
+      <sphereGeometry args={[1, isMobile ? 6 : 8, isMobile ? 6 : 8]} />
       <meshBasicMaterial color="#FFFFFF" transparent opacity={0.6} />
     </instancedMesh>
   );
