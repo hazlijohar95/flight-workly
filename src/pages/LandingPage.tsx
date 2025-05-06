@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import SearchBar from '../components/SearchBar';
 import ProfileBubble from '../components/ProfileBubble';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -92,13 +91,13 @@ const LandingPage = () => {
               </p>
               
               <div className="mt-4 md:mt-6 flex flex-col items-center">
-                <SearchBar 
-                  placeholder={isMobile ? "What do you need done?" : "I need a landing page for my business by tomorrow. Anyone?"} 
-                  label="What do you need done?"
-                />
+                <h2 className="text-xl md:text-2xl font-medium text-gray-800 py-6 md:py-8">
+                  What do you need done?
+                </h2>
+                
                 <Button 
                   onClick={handleJoinWaitlist}
-                  className="mt-6 bg-[#FF4081] hover:bg-[#d13469] text-white font-medium px-8 py-2 rounded-md text-lg"
+                  className="bg-[#121212] hover:bg-black hover:shadow-md text-white font-medium px-8 py-2 rounded-md text-lg transition-colors"
                 >
                   Join the Waitlist
                 </Button>
