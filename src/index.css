@@ -146,4 +146,22 @@
   fill: #FF4081;
   r: 6;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+  cursor: pointer;
+}
+
+/* Add a subtle pulse animation for the path dots */
+@keyframes pulse-dot {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.path-dot:hover {
+  animation: pulse-dot 1.5s infinite;
 }
