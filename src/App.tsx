@@ -8,6 +8,15 @@ import WaitlistPage from "./pages/WaitlistPage";
 import LandingPage from "./pages/LandingPage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./context/AuthContext";
+import AuthLayout from "./components/AuthLayout";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Profile from "./pages/dashboard/Profile";
+import BetaAccess from "./pages/BetaAccess";
+import BetaInvites from "./pages/dashboard/admin/BetaInvites";
 
 const queryClient = new QueryClient();
 
@@ -17,13 +26,31 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/waitlist" element={<WaitlistPage />} />
-          <Route path="/home" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/waitlist" element={<WaitlistPage />} />
+            <Route path="/home" element={<Index />} />
+            <Route path="/beta" element={<BetaAccess />} />
+            
+            {/* Auth routes */}
+            <Route path="/auth" element={<AuthLayout />}>
+              <Route path="login" element={<Login />} />
+              <Route path="signup" element={<Signup />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+            </Route>
+            
+            {/* Dashboard routes - protected */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
+            
+            {/* Admin routes */}
+            <Route path="/dashboard/admin/invites" element={<BetaInvites />} />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
