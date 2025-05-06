@@ -14,7 +14,7 @@ export function useRequireAuth({
   requireBetaAccess = false,
   requireAdmin = false,
 }: UseRequireAuthOptions = {}) {
-  const { user, isLoading, isBetaTester, isAdmin } = useAuth();
+  const { user, isLoading, isBetaTester, isAdmin, profile, updateProfile } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,7 +39,8 @@ export function useRequireAuth({
     }
   }, [user, isLoading, isBetaTester, isAdmin, navigate, redirectTo, requireBetaAccess, requireAdmin]);
 
-  return { user, isLoading, isBetaTester, isAdmin };
+  // Return all necessary auth context properties
+  return { user, isLoading, isBetaTester, isAdmin, profile, updateProfile };
 }
 
 export default useRequireAuth;
