@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Facebook, Instagram, Linkedin, Twitter, Mail } from 'lucide-react';
 import { useResponsive } from '../hooks/use-responsive';
@@ -49,11 +48,6 @@ const Footer = () => {
             <Link to="/about" className="text-xs md:text-sm text-gray-600 hover:text-[#FF4081] transition-colors">About Us</Link>
             <Link to="/contact" className="text-xs md:text-sm text-gray-600 hover:text-[#FF4081] transition-colors">Contact</Link>
           </div>
-          
-          {/* CTA Button */}
-          <Button className="bg-[#121212] hover:bg-black transition-colors text-sm">
-            Get Started
-          </Button>
         </div>
         
         {/* Copyright */}
