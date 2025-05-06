@@ -22,12 +22,12 @@ import Settings from "./pages/dashboard/Settings";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
         <AuthProvider>
+          <Toaster />
+          <Sonner />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/waitlist" element={<WaitlistPage />} />
@@ -57,9 +57,9 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;
