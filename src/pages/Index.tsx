@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import ProfileBubble from '../components/ProfileBubble';
+import { ArrowRight } from 'lucide-react';
 
 const Index = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -13,21 +14,24 @@ const Index = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Top Banner */}
-      <div className="bg-black text-white text-center py-3 text-sm">
-        Be an early adopter. Help change how people get hired and work gets done — fast.
+      <div className="bg-black text-white text-center py-2 text-xs">
+        <span>Be an </span>
+        <a href="#" className="underline hover:text-[#FF4081] transition-colors">early adopter</a>
+        <span>. Help change how people get hired and work gets done — fast.</span>
       </div>
 
       {/* Header */}
-      <header className="container mx-auto pt-6 pb-4 px-6">
-        <div className="text-left">
+      <header className="container mx-auto pt-4 pb-2 px-6">
+        <div className="flex flex-col text-left">
           <h1 className="font-bold text-xl">
             <span className="font-normal">FLIGHT</span>WORKLY
           </h1>
+          <p className="text-xs text-gray-600 -mt-1">Fast Freelance Hiring</p>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 relative pt-8 pb-20">
+      <main className="container mx-auto px-4 relative pt-4 pb-20">
         {/* Profile Images with Connecting Path */}
         <div className="relative h-[80vh]">
           {/* SVG for dashed path - updated to match the reference image */}
@@ -45,7 +49,7 @@ const Index = () => {
             <circle cx="300" cy="350" r="4" className="path-dot" />
           </svg>
 
-          {/* Profile bubbles - positioned to match the reference image */}
+          {/* Profile bubbles - positioned to match the reference image with skills */}
           <ProfileBubble 
             image="/lovable-uploads/b89a7188-4aea-414b-bdb3-032be4dee871.png"
             message="I just hired 3 bookkeepers in 3 hours!"
@@ -53,6 +57,7 @@ const Index = () => {
             size="lg"
             messageColor="blue"
             delay={200}
+            skill="Financial Consultant"
           />
           
           <ProfileBubble 
@@ -62,6 +67,7 @@ const Index = () => {
             size="lg"
             messageColor="yellow"
             delay={400}
+            skill="Marketing Director"
           />
           
           <ProfileBubble 
@@ -71,6 +77,7 @@ const Index = () => {
             size="md"
             messageColor="blue"
             delay={300}
+            skill="Event Manager"
           />
           
           <ProfileBubble 
@@ -80,6 +87,7 @@ const Index = () => {
             size="lg"
             messageColor="pink"
             delay={600}
+            skill="UX Designer"
           />
           
           <ProfileBubble 
@@ -89,9 +97,10 @@ const Index = () => {
             size="lg"
             messageColor="green"
             delay={700}
+            skill="Developer"
           />
           
-          {/* New profile bubble for first missing image - person with glasses */}
+          {/* Profile bubble with glasses */}
           <ProfileBubble
             image="/lovable-uploads/f877774b-dad1-499f-a2df-913c11800742.png"
             message="Looking for talented developers in my area"
@@ -99,9 +108,10 @@ const Index = () => {
             size="lg"
             messageColor="blue"
             delay={450}
+            skill="Project Manager"
           />
           
-          {/* New profile bubble for second missing image - person in black shirt */}
+          {/* Person in black shirt */}
           <ProfileBubble
             image="/lovable-uploads/b9656106-61f1-411d-8d42-57fd9533067f.png"
             message="Just completed my first gig through the platform!"
@@ -109,23 +119,17 @@ const Index = () => {
             size="lg"
             messageColor="pink"
             delay={550}
+            skill="Video Editor"
           />
           
-          {/* Blurred profile images */}
+          {/* Removed some blurred profile images to reduce clutter */}
           <ProfileBubble 
             image="/lovable-uploads/7974a8f3-eafe-4a53-9f87-454268c85953.png"
             position={{ top: "25%", right: "35%" }}
             size="sm"
             isBlurred={true}
             delay={500}
-          />
-          
-          <ProfileBubble 
-            image="/lovable-uploads/fb6b2b87-4f6a-467e-ac15-e4751120082c.png"
-            position={{ bottom: "30%", right: "40%" }}
-            size="sm"
-            isBlurred={true}
-            delay={800}
+            skill="Copywriter"
           />
           
           <ProfileBubble 
@@ -134,29 +138,25 @@ const Index = () => {
             size="sm"
             isBlurred={true}
             delay={900}
-          />
-          
-          <ProfileBubble 
-            image="/lovable-uploads/b9656106-61f1-411d-8d42-57fd9533067f.png"
-            position={{ top: "40%", left: "35%" }}
-            size="sm"
-            isBlurred={true}
-            delay={550}
+            skill="Data Analyst"
           />
           
           {/* Central content */}
           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full max-w-3xl px-4 transition-all duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <h1 className="mb-6 text-5xl md:text-6xl font-bold">
+            <h1 className="mb-4 text-5xl md:text-6xl font-bold">
               <span className="block md:inline">Hiring </span>
-              <span className="italic font-normal block md:inline">shouldn't </span>
+              <span className="italic font-normal text-[#FF4081] block md:inline">shouldn't </span>
               <span className="block md:inline">feel like begging.</span>
             </h1>
             
-            <p className="mb-10 text-xl text-gray-700">
+            <p className="mb-6 text-xl text-gray-700 max-w-2xl mx-auto">
               Post what you need. Let skilled freelancers fight to earn it.
             </p>
             
-            <SearchBar placeholder="I need a landing page for my business by tomorrow. Anyone?" />
+            <SearchBar 
+              placeholder="I need a landing page for my business by tomorrow. Anyone?" 
+              label="What do you need done?"
+            />
           </div>
         </div>
       </main>

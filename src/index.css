@@ -95,6 +95,13 @@
     stroke: #000;
     stroke-width: 2px;
     fill: none;
+    animation: dash 15s linear infinite;
+  }
+  
+  @keyframes dash {
+    to {
+      stroke-dashoffset: 100;
+    }
   }
 }
 
@@ -136,8 +143,7 @@
 }
 
 .path-dot:hover {
-  fill: #33C3F0;
+  fill: #FF4081;
   r: 6;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
 }
-

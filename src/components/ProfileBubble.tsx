@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProfileBubbleProps {
   image: string;
@@ -15,6 +16,7 @@ interface ProfileBubbleProps {
   isBlurred?: boolean;
   messageColor?: "blue" | "yellow" | "pink" | "green";
   delay?: number;
+  skill?: string; // New prop for skill label
 }
 
 const ProfileBubble: React.FC<ProfileBubbleProps> = ({ 
@@ -24,7 +26,8 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
   size = "md",
   isBlurred = false,
   messageColor = "blue",
-  delay = 0
+  delay = 0,
+  skill
 }) => {
   const [imageError, setImageError] = useState(false);
   
@@ -57,19 +60,45 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
       }}
     >
       <div className="relative group">
-        {!imageError ? (
-          <img 
-            src={image} 
-            alt="Profile" 
-            className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`}
-            onError={handleImageError}
-          />
+        {skill ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {!imageError ? (
+                <img 
+                  src={image} 
+                  alt="Profile" 
+                  className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`}
+                  onError={handleImageError}
+                />
+              ) : (
+                <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md animate-float`}>
+                  <AvatarFallback className="bg-gray-300 text-gray-600">
+                    {size === "sm" ? "?" : "User"}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </TooltipTrigger>
+            <TooltipContent className="bg-black/80 text-white border-none py-1 px-2">
+              {skill}
+            </TooltipContent>
+          </Tooltip>
         ) : (
-          <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md animate-float`}>
-            <AvatarFallback className="bg-gray-300 text-gray-600">
-              {size === "sm" ? "?" : "User"}
-            </AvatarFallback>
-          </Avatar>
+          <>
+            {!imageError ? (
+              <img 
+                src={image} 
+                alt="Profile" 
+                className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg animate-float`}
+                onError={handleImageError}
+              />
+            ) : (
+              <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md animate-float`}>
+                <AvatarFallback className="bg-gray-300 text-gray-600">
+                  {size === "sm" ? "?" : "User"}
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </>
         )}
         
         {message && (
