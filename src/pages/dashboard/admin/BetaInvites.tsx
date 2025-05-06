@@ -11,6 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -43,6 +51,7 @@ export default function BetaInvites() {
   const [invites, setInvites] = useState<BetaInvite[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvites, setSelectedInvites] = useState<string[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const form = useForm<InviteFormValues>({
     resolver: zodResolver(inviteSchema),
@@ -104,7 +113,7 @@ export default function BetaInvites() {
   };
 
   const handleDeleteSelected = async () => {
-    if (!selectedInvites.length) return;
+    setDialogOpen(false);
     
     try {
       const { error } = await supabase
@@ -162,7 +171,7 @@ export default function BetaInvites() {
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={handleDeleteSelected}
+                onClick={() => setDialogOpen(true)}
               >
                 Delete Selected ({selectedInvites.length})
               </Button>
@@ -244,6 +253,26 @@ export default function BetaInvites() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Selected Invites</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedInvites.length} invite(s)? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteSelected}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
