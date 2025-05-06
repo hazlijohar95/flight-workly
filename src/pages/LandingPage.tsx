@@ -6,6 +6,7 @@ import ProfileBubble from '../components/ProfileBubble';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import OrbitPath from '../components/OrbitPath';
+import BackgroundCanvas from '../components/BackgroundCanvas';
 import { useResponsive } from '../hooks/use-responsive';
 import { stylePresets } from '../theme/colors';
 import { mainProfileBubbles, mobileProfileBubbles, backgroundBubbles } from '../data/profileBubbles';
@@ -25,6 +26,7 @@ const LandingPage = () => {
   
   return (
     <div className="min-h-screen relative overflow-x-hidden">
+      <BackgroundCanvas />
       <Header showEarlyAdopter={true} />
 
       {/* Main Content */}
@@ -79,7 +81,7 @@ const LandingPage = () => {
           
           {/* Central content */}
           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full max-w-3xl px-4 transition-all duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'} z-20`}>
-            <div className={`p-4 md:p-8 rounded-2xl shadow-sm ${stylePresets.glassBg}`}>
+            <div className={`p-4 md:p-8 rounded-2xl backdrop-blur-md bg-white/70 shadow-lg`}>
               <h1 className="mb-2 md:mb-3 text-3xl md:text-4xl lg:text-6xl font-bold leading-tight">
                 <span className="block md:inline">Hiring </span>
                 <span className="italic font-normal text-[#FF4081] block md:inline">shouldn't </span>
