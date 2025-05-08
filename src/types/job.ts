@@ -13,6 +13,7 @@ export interface Job {
   created_at: string;
   updated_at: string;
   user_id: string;
+  bids?: Bid[];
 }
 
 export interface Bid {
@@ -55,6 +56,19 @@ export interface PaymentMethod {
   last_four?: string;
   card_type?: string;
   is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// New interface for work submissions
+export interface WorkSubmission {
+  id: string;
+  job_id: string;
+  bid_id: string;
+  user_id: string;
+  note: string;
+  review_note?: string | null;
+  status: 'pending_review' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
 }

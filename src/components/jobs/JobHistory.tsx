@@ -1,5 +1,4 @@
 
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { formatDistance } from "date-fns";
@@ -52,7 +51,12 @@ export default function JobHistory({ limit = 5, showViewAll = true }: JobHistory
         .limit(limit);
         
       if (error) throw error;
-      return data as Job[];
+      
+      // Transform data to include bids as an array for each job
+      return data.map((job: any) => {
+        const bidsArray = Array.isArray(job.bids) ? job.bids : [job.bids].filter(Boolean);
+        return { ...job, bids: bidsArray };
+      }) as Job[];
     },
     enabled: !!user && !!profile,
   });

@@ -449,6 +449,57 @@ export type Database = {
           },
         ]
       }
+      work_submissions: {
+        Row: {
+          bid_id: string
+          created_at: string
+          id: string
+          job_id: string
+          note: string
+          review_note: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bid_id: string
+          created_at?: string
+          id?: string
+          job_id: string
+          note: string
+          review_note?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bid_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          note?: string
+          review_note?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_submissions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_submissions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

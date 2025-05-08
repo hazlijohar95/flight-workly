@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { FileCheck, Check, Loader2 } from "lucide-react";
@@ -5,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Job, Bid } from "@/types/job";
+import { Job, Bid, WorkSubmission } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -45,17 +46,6 @@ export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobC
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
-        .from("jobs")
-        .update({
-          // We're keeping the status as in_progress until the client approves it
-          status: "in_progress",
-          // Store the work submission note in a different table
-        })
-        .eq("id", job.id);
-
-      if (error) throw error;
-      
       // Insert the work submission record
       const { error: submissionError } = await supabase
         .from("work_submissions")
@@ -83,6 +73,21 @@ export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobC
     setIsReviewing(true);
     
     try {
+      // Get the latest submission first
+      const { data: submissions, error: fetchError } = await supabase
+        .from("work_submissions")
+        .select("*")
+        .eq("job_id", job.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+        
+      if (fetchError) throw fetchError;
+      if (!submissions || submissions.length === 0) {
+        throw new Error("No work submission found");
+      }
+      
+      const submission = submissions[0];
+      
       // Update the job status
       const { error: jobError } = await supabase
         .from("jobs")
@@ -100,9 +105,7 @@ export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobC
           status: approved ? "approved" : "rejected",
           review_note: reviewNote,
         })
-        .eq("job_id", job.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
+        .eq("id", submission.id);
         
       if (submissionError) throw submissionError;
       
@@ -133,7 +136,7 @@ export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobC
         .limit(1);
         
       if (error) throw error;
-      return data[0] || null;
+      return data[0] as WorkSubmission | undefined;
     },
   });
 
