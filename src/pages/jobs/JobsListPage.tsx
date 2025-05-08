@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -14,7 +13,7 @@ import useRequireAuth from "@/hooks/useRequireAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function JobsListPage() {
-  const { user, profile } = useRequireAuth({ requireBetaAccess: true });
+  const { user, profile } = useRequireAuth();
   const [activeTab, setActiveTab] = useState<string>("available");
 
   const { data: jobs, isLoading, error, refetch } = useQuery({

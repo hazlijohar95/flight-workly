@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -10,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function Settings() {
-  const { user, profile } = useRequireAuth({ requireBetaAccess: true });
+  const { user, profile } = useRequireAuth();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
