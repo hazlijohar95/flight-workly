@@ -9,7 +9,7 @@ export interface Job {
   deadline: string;
   bidding_end_time: string;
   status: 'open' | 'bidding' | 'in_progress' | 'complete';
-  payment_status?: string; // New field
+  payment_status?: string; // Payment status: unpaid, processing, paid, released
   created_at: string;
   updated_at: string;
   user_id: string;
@@ -39,8 +39,10 @@ export interface Transaction {
   payee_id: string;
   payment_method_id?: string;
   chip_transaction_id?: string;
-  status: 'pending' | 'completed' | 'failed' | 'released';
+  chip_send_transaction_id?: string; // New field for CHIP Send transactions
+  status: 'pending' | 'completed' | 'failed' | 'released' | 'disbursed'; // Added 'disbursed' status
   escrow_released_at?: string;
+  disbursed_at?: string; // New field for disbursement timestamp
   created_at: string;
   updated_at: string;
 }

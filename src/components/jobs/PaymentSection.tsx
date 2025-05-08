@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { CreditCard, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { CreditCard, CheckCircle, AlertCircle, Loader2, ArrowDownLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -127,7 +127,11 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
         throw new Error(result.error || 'Payment release failed');
       }
       
-      toast.success("Payment released successfully!");
+      if (result.warning) {
+        toast.warning("Payment marked as released, but there was an issue with fund disbursement.");
+      } else {
+        toast.success("Payment released successfully to freelancer!");
+      }
       
       if (onPaymentComplete) {
         onPaymentComplete();
@@ -142,6 +146,53 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
   };
   
   // Different states based on payment status
+  
+  // Funds have been disbursed to the freelancer
+  if (transaction?.status === 'disbursed') {
+    return (
+      <Card>
+        <CardHeader className="bg-green-50 border-b">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+            <CardTitle className="text-lg">Payment Completed</CardTitle>
+          </div>
+          <CardDescription>
+            The payment has been disbursed to the freelancer
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Amount</span>
+              <span>{job.currency} {bid.fee.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Platform Fee</span>
+              <span>{job.currency} {transaction?.fee_amount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center font-bold pt-2 border-t">
+              <span>Total</span>
+              <span>{job.currency} {(bid.fee + (transaction?.fee_amount || 0)).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2">
+              <span className="font-medium">Disbursed Date</span>
+              <span>{transaction.disbursed_at ? new Date(transaction.disbursed_at).toLocaleDateString() : "N/A"}</span>
+            </div>
+          </div>
+          
+          {isFreelancer && (
+            <div className="mt-4 p-3 bg-green-50 rounded-md border border-green-200">
+              <p className="text-sm text-green-800">
+                Your payment has been sent to your registered bank account.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Payment is in escrow (waiting to be released)
   if (job.payment_status === 'paid' && transaction?.status === 'completed') {
     return (
       <Card>
@@ -177,6 +228,14 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
               </p>
             </div>
           )}
+          
+          {isFreelancer && job.status === 'in_progress' && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+              <p className="text-sm text-blue-800">
+                The client has funded this job. Payment will be released when the work is complete.
+              </p>
+            </div>
+          )}
         </CardContent>
         
         {isJobOwner && job.status === 'in_progress' && (
@@ -188,10 +247,12 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
             >
               {isReleasing ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Releasing Payment...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing Disbursement...
                 </>
               ) : (
-                "Release Payment"
+                <>
+                  <ArrowDownLeft className="mr-2 h-4 w-4" /> Release Payment to Freelancer
+                </>
               )}
             </Button>
           </CardFooter>
@@ -200,6 +261,7 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
     );
   }
   
+  // Payment is being processed
   if (job.payment_status === 'processing') {
     return (
       <Card>

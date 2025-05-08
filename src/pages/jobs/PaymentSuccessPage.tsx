@@ -114,6 +114,21 @@ export default function PaymentSuccessPage() {
             Your payment has been processed successfully and is now held in escrow until the job is completed.
           </p>
           
+          {transaction && (
+            <div className="bg-gray-50 rounded p-4 mb-6 text-left">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span className="text-muted-foreground">Transaction ID:</span>
+                <span className="font-mono text-xs truncate">{transaction.chip_transaction_id || transaction.id}</span>
+                
+                <span className="text-muted-foreground">Amount:</span>
+                <span>{transaction.currency} {transaction.amount.toFixed(2)}</span>
+                
+                <span className="text-muted-foreground">Status:</span>
+                <span className="capitalize">{transaction.status}</span>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-4">
             <Button
               className="w-full"
