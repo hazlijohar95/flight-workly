@@ -1,7 +1,205 @@
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.29.0";
-import { CHIP_SEND_API_URL, generateChecksum } from "../lib/chip.ts";
+import { CHIP_SEND_API_URL, generateChecksum, getChipApiKey } from "../lib/chip.ts";
 
+// Get transaction data from Supabase
+async function getTransactionData(
+  supabase: SupabaseClient,
+  transactionId: string
+): Promise<{ data: any; error: string | null }> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*, bids(*)')
+    .eq('id', transactionId)
+    .single();
+  
+  if (error || !data) {
+    console.error('Transaction query error:', error);
+    return { data: null, error: 'Failed to fetch transaction data' };
+  }
+  
+  return { data, error: null };
+}
+
+// Get freelancer profile data from Supabase
+async function getFreelancerData(
+  supabase: SupabaseClient,
+  payeeId: string
+): Promise<{ data: any; error: string | null }> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', payeeId)
+    .single();
+  
+  if (error) {
+    console.error('Freelancer profile query error:', error);
+    return { data: null, error: 'Failed to fetch freelancer data' };
+  }
+  
+  return { data, error: null };
+}
+
+// Check available balance in CHIP account
+async function checkAvailableBalance(
+  epoch: number,
+  checksum: string
+): Promise<any> {
+  const response = await fetch(`${CHIP_SEND_API_URL}accounts`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${getChipApiKey()}`,
+      'epoch': epoch.toString(),
+      'checksum': checksum
+    }
+  });
+  
+  const data = await response.json();
+  console.log('Accounts API response:', data);
+  return data;
+}
+
+// Add bank account to CHIP
+async function addBankAccount(
+  epoch: number,
+  checksum: string,
+  freelancerData: any,
+  jobId: string
+): Promise<any> {
+  const response = await fetch(`${CHIP_SEND_API_URL}bank_accounts`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getChipApiKey()}`,
+      'epoch': epoch.toString(),
+      'checksum': checksum
+    },
+    body: JSON.stringify({
+      bank_account: {
+        account_name: `${freelancerData.first_name} ${freelancerData.last_name}`,
+        account_number: "1234567890", // In production, fetch from secured storage
+        bank_code: "MBBEMYKL",  // Maybank
+        reference: `Payment for job ${jobId}`
+      }
+    })
+  });
+  
+  const data = await response.json();
+  console.log('Bank account API response:', data);
+  
+  if (!data.id) {
+    throw new Error('Failed to add bank account: ' + JSON.stringify(data));
+  }
+  
+  return data;
+}
+
+// Create send instruction in CHIP
+async function createSendInstruction(
+  epoch: number,
+  checksum: string,
+  transactionData: any,
+  bankAccountId: string,
+  jobId: string
+): Promise<any> {
+  const response = await fetch(`${CHIP_SEND_API_URL}send_instructions`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getChipApiKey()}`,
+      'epoch': epoch.toString(),
+      'checksum': checksum
+    },
+    body: JSON.stringify({
+      send_instruction: {
+        amount: transactionData.amount,
+        bank_account_id: bankAccountId,
+        remarks: `Payment for job: ${jobId}`,
+        reference: `job-payment-${jobId}`,
+        currency: transactionData.currency || "MYR"
+      }
+    })
+  });
+  
+  const data = await response.json();
+  console.log('Send instruction API response:', data);
+  
+  if (!data.id) {
+    throw new Error('Failed to create send instruction: ' + JSON.stringify(data));
+  }
+  
+  return data;
+}
+
+// Update transaction status in Supabase
+async function updateTransactionStatus(
+  supabase: SupabaseClient,
+  transactionId: string,
+  sendInstructionId: string,
+  status: string = 'disbursed'
+): Promise<{ error: any }> {
+  const { error } = await supabase
+    .from('transactions')
+    .update({ 
+      status, 
+      escrow_released_at: new Date().toISOString(),
+      disbursed_at: new Date().toISOString(),
+      chip_send_transaction_id: sendInstructionId
+    })
+    .eq('id', transactionId);
+  
+  if (error) {
+    console.error('Transaction update error:', error);
+  }
+  
+  return { error };
+}
+
+// Update job status in Supabase
+async function updateJobStatus(
+  supabase: SupabaseClient,
+  jobId: string,
+  status: string = 'complete',
+  paymentStatus: string = 'released'
+): Promise<{ error: any }> {
+  const { error } = await supabase
+    .from('jobs')
+    .update({ status, payment_status: paymentStatus })
+    .eq('id', jobId);
+  
+  if (error) {
+    console.error('Job update error:', error);
+  }
+  
+  return { error };
+}
+
+// Handle error fallbacks - mark transaction as released even if CHIP API fails
+async function handleReleaseError(
+  supabase: SupabaseClient,
+  transactionId: string,
+  jobId: string
+): Promise<void> {
+  // Mark transaction as released but with an error flag
+  await supabase
+    .from('transactions')
+    .update({ 
+      status: 'released',
+      escrow_released_at: new Date().toISOString()
+    })
+    .eq('id', transactionId);
+  
+  // Update job status regardless of payment API error
+  await supabase
+    .from('jobs')
+    .update({ status: 'complete' })
+    .eq('id', jobId);
+}
+
+// Main handler function
 export async function handleReleasePayment(
   req: Request,
   supabase: SupabaseClient,
@@ -12,28 +210,18 @@ export async function handleReleasePayment(
   const { transactionId, jobId } = requestData;
   
   // Get transaction details
-  const { data: transactionData, error: transactionQueryError } = await supabase
-    .from('transactions')
-    .select('*, bids(*)')
-    .eq('id', transactionId)
-    .single();
+  const { data: transactionData, error: transactionError } = await getTransactionData(supabase, transactionId);
   
-  if (transactionQueryError || !transactionData) {
-    console.error('Transaction query error:', transactionQueryError);
-    return new Response(JSON.stringify({ error: 'Failed to fetch transaction data', details: transactionQueryError }), 
+  if (transactionError || !transactionData) {
+    return new Response(JSON.stringify({ error: transactionError, details: 'Transaction not found' }), 
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
   
-  // Get freelancer profile for bank details (in a real implementation, you'd store bank details)
-  const { data: freelancerData, error: freelancerError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', transactionData.payee_id)
-    .single();
+  // Get freelancer profile for bank details
+  const { data: freelancerData, error: freelancerError } = await getFreelancerData(supabase, transactionData.payee_id);
   
-  if (freelancerError) {
-    console.error('Freelancer profile query error:', freelancerError);
-    return new Response(JSON.stringify({ error: 'Failed to fetch freelancer data', details: freelancerError }), 
+  if (freelancerError || !freelancerData) {
+    return new Response(JSON.stringify({ error: freelancerError, details: 'Freelancer not found' }), 
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
   
@@ -42,105 +230,37 @@ export async function handleReleasePayment(
     const epoch = Math.floor(Date.now() / 1000);
     const checksum = await generateChecksum(epoch);
     
-    // Call CHIP Send API to disburse funds
-    // For this example, we're using the Add Bank Account API first
-    // In a real implementation, you would have stored the bank account details
+    // 1. Check available balance
+    await checkAvailableBalance(epoch, checksum);
     
-    // 1. First, check available balance
-    const accountsResponse = await fetch(`${CHIP_SEND_API_URL}accounts`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${getChipApiKey()}`,
-        'epoch': epoch.toString(),
-        'checksum': checksum
-      }
-    });
-    
-    const accountsData = await accountsResponse.json();
-    console.log('Accounts API response:', accountsData);
-    
-    // 2. Add a bank account (in production, you'd store these)
-    // For simplicity, we're adding a test bank account each time
-    const bankAccountResponse = await fetch(`${CHIP_SEND_API_URL}bank_accounts`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getChipApiKey()}`,
-        'epoch': epoch.toString(),
-        'checksum': checksum
-      },
-      body: JSON.stringify({
-        bank_account: {
-          account_name: `${freelancerData.first_name} ${freelancerData.last_name}`,
-          account_number: "1234567890", // In production, fetch from secured storage
-          bank_code: "MBBEMYKL",  // Maybank
-          reference: `Payment for job ${jobId}`
-        }
-      })
-    });
-    
-    const bankAccountData = await bankAccountResponse.json();
-    console.log('Bank account API response:', bankAccountData);
-    
-    if (!bankAccountData.id) {
-      throw new Error('Failed to add bank account: ' + JSON.stringify(bankAccountData));
-    }
+    // 2. Add a bank account
+    const bankAccountData = await addBankAccount(epoch, checksum, freelancerData, jobId);
     
     // 3. Create send instruction
-    const sendInstructionResponse = await fetch(`${CHIP_SEND_API_URL}send_instructions`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getChipApiKey()}`,
-        'epoch': epoch.toString(),
-        'checksum': checksum
-      },
-      body: JSON.stringify({
-        send_instruction: {
-          amount: transactionData.amount,
-          bank_account_id: bankAccountData.id,
-          remarks: `Payment for job: ${jobId}`,
-          reference: `job-payment-${jobId}`,
-          currency: transactionData.currency || "MYR"
-        }
-      })
-    });
+    const sendInstructionData = await createSendInstruction(
+      epoch, 
+      checksum, 
+      transactionData,
+      bankAccountData.id,
+      jobId
+    );
     
-    const sendInstructionData = await sendInstructionResponse.json();
-    console.log('Send instruction API response:', sendInstructionData);
-    
-    if (!sendInstructionData.id) {
-      throw new Error('Failed to create send instruction: ' + JSON.stringify(sendInstructionData));
-    }
-    
-    // Update transaction status to disbursed
-    const { error: transactionUpdateError } = await supabase
-      .from('transactions')
-      .update({ 
-        status: 'disbursed', 
-        escrow_released_at: new Date().toISOString(),
-        disbursed_at: new Date().toISOString(),
-        chip_send_transaction_id: sendInstructionData.id
-      })
-      .eq('id', transactionId);
+    // 4. Update transaction status
+    const { error: transactionUpdateError } = await updateTransactionStatus(
+      supabase,
+      transactionId,
+      sendInstructionData.id
+    );
     
     if (transactionUpdateError) {
-      console.error('Transaction update error:', transactionUpdateError);
       return new Response(JSON.stringify({ error: 'Failed to update transaction status', details: transactionUpdateError }), 
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     
-    // Update job status
-    const { error: jobUpdateError } = await supabase
-      .from('jobs')
-      .update({ status: 'complete', payment_status: 'released' })
-      .eq('id', jobId);
+    // 5. Update job status
+    const { error: jobUpdateError } = await updateJobStatus(supabase, jobId);
     
     if (jobUpdateError) {
-      console.error('Job update error:', jobUpdateError);
       return new Response(JSON.stringify({ error: 'Failed to update job status', details: jobUpdateError }), 
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -154,20 +274,8 @@ export async function handleReleasePayment(
   } catch (chipError) {
     console.error('CHIP Send API error:', chipError);
     
-    // Still mark transaction as released but with an error flag
-    const { error: transactionUpdateError } = await supabase
-      .from('transactions')
-      .update({ 
-        status: 'released', // We still release it in our system even if CHIP Send failed
-        escrow_released_at: new Date().toISOString()
-      })
-      .eq('id', transactionId);
-    
-    // Update job status regardless of payment API error
-    const { error: jobUpdateError } = await supabase
-      .from('jobs')
-      .update({ status: 'complete' })
-      .eq('id', jobId);
+    // Handle error fallbacks
+    await handleReleaseError(supabase, transactionId, jobId);
     
     return new Response(JSON.stringify({ 
       success: true, 
@@ -175,8 +283,4 @@ export async function handleReleasePayment(
       error: chipError.message 
     }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
-}
-
-function getChipApiKey() {
-  return Deno.env.get('CHIP_API_KEY');
 }
