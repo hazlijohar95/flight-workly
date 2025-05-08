@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { PlusCircle } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Job, Milestone } from "@/types/job";
-import MilestoneForm from "./MilestoneForm";
 import MilestoneList from "./MilestoneList";
+import MilestoneHeader from "./MilestoneHeader";
+import MilestoneSummary from "./MilestoneSummary";
+import MilestoneFormContainer from "./MilestoneFormContainer";
 
 interface MilestoneManagerProps {
   job: Job;
@@ -88,55 +88,36 @@ export default function MilestoneManager({
     return <div className="text-center py-4">Loading milestones...</div>;
   }
 
-  const totalMilestoneAmount = milestones?.reduce(
-    (sum, milestone) => sum + Number(milestone.amount),
-    0
-  ) || 0;
-
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Payment Milestones</h3>
-        {isJobOwner && job.status === "open" && (
-          <Button 
-            size="sm" 
-            variant={showAddForm ? "outline" : "default"}
-            onClick={() => setShowAddForm(!showAddForm)}
-          >
-            <PlusCircle className="h-4 w-4 mr-1" />
-            {showAddForm ? "Cancel" : "Add Milestone"}
-          </Button>
-        )}
-      </div>
+      <MilestoneHeader 
+        showAddForm={showAddForm}
+        isJobOwner={isJobOwner}
+        jobStatus={job.status}
+        onToggleForm={() => setShowAddForm(!showAddForm)}
+      />
       
-      {showAddForm && (
-        <div className="border rounded-lg p-4 bg-muted/20">
-          <MilestoneForm 
-            jobId={job.id} 
-            jobBudget={job.budget}
-            onSubmit={handleAddMilestone}
-            isSubmitting={isSubmitting}
-          />
-        </div>
-      )}
+      <MilestoneFormContainer 
+        showAddForm={showAddForm}
+        jobId={job.id}
+        jobBudget={job.budget}
+        isSubmitting={isSubmitting}
+        onSubmit={handleAddMilestone}
+      />
       
-      {milestones && milestones.length > 0 && (
-        <div className="bg-muted/20 p-3 rounded-md text-sm flex justify-between">
-          <span>Total milestone amount:</span>
-          <span className="font-semibold">
-            {job.currency} {totalMilestoneAmount.toFixed(2)} 
-            {totalMilestoneAmount !== job.budget && ` (${((totalMilestoneAmount / job.budget) * 100).toFixed()}% of budget)`}
-          </span>
-        </div>
-      )}
+      <MilestoneSummary milestones={milestones} job={job} />
       
-      {milestones && (
+      {milestones && milestones.length > 0 ? (
         <MilestoneList 
           milestones={milestones} 
           job={job} 
           isJobOwner={isJobOwner}
           onMilestoneAction={handleMilestoneAction}
         />
+      ) : !showAddForm && (
+        <div className="text-center py-8 text-muted-foreground">
+          No milestones have been created for this job.
+        </div>
       )}
     </div>
   );

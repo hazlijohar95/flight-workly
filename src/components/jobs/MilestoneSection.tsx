@@ -11,7 +11,7 @@ interface MilestoneSectionProps {
 }
 
 export default function MilestoneSection({ job, isOwner, onUpdateJob }: MilestoneSectionProps) {
-  // Don't show anything in the bidding phase
+  // Don't show anything in the bidding phase if not the owner
   if (job.status === "open" && !isOwner) {
     return null;
   }
