@@ -8,7 +8,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  // Remove the requireBetaAccess parameter so all logged-in users can access the dashboard
+  // Use requireAuth with no beta access requirement
   const { user, profile, isAdmin } = useRequireAuth();
   const navigate = useNavigate();
   
@@ -18,14 +18,15 @@ export default function Dashboard() {
 
   const handleCompleteProfile = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate('/dashboard/profile');
+    // Force a direct navigation to ensure we stay in the dashboard context
+    navigate('/dashboard/profile', { replace: true });
   };
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, {profile.first_name}!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome, {profile.first_name || "User"}!</h1>
           <p className="text-muted-foreground">
             {!profile.user_type 
               ? "Complete your profile to get started with Flightworkly" 

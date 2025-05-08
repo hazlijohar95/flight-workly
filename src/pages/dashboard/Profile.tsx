@@ -52,7 +52,8 @@ type FreelancerFormValues = z.infer<typeof freelancerSchema>;
 type JobPosterFormValues = z.infer<typeof jobPosterSchema>;
 
 export default function Profile() {
-  const { user, profile, updateProfile } = useRequireAuth({ requireBetaAccess: true });
+  // Remove the beta access requirement to allow all users to access the profile page
+  const { user, profile, updateProfile } = useRequireAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [freelancerProfile, setFreelancerProfile] = useState<any>(null);
   const [jobPosterProfile, setJobPosterProfile] = useState<any>(null);

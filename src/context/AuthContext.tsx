@@ -202,6 +202,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Refetch profile to get updated data
       fetchUserProfile(user.id);
       
+      // Show success toast
+      toast.success(`Profile updated as ${type === 'freelancer' ? 'Freelancer' : 'Business'}`);
+      
     } catch (error: any) {
       toast.error(error.message || 'Error setting user type');
       throw error;

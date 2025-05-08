@@ -26,13 +26,13 @@ export function useRequireAuth({
       return;
     }
     
-    // Requires beta access but user is not a beta tester
+    // Beta access check - only perform if specifically required
     if (requireBetaAccess && !isBetaTester) {
       navigate('/');
       return;
     }
     
-    // Requires admin but user is not an admin
+    // Admin check - only perform if specifically required
     if (requireAdmin && !isAdmin) {
       navigate('/dashboard');
       return;
