@@ -23,57 +23,60 @@ import JobDetailPage from "./pages/jobs/JobDetailPage";
 import PaymentSuccessPage from "./pages/jobs/PaymentSuccessPage";
 import PaymentFailedPage from "./pages/jobs/PaymentFailedPage";
 import JobHistoryPage from "./pages/jobs/JobHistoryPage";
+import React from "react"; // Added explicit React import
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            {/* Keep waitlist page for redirection purposes */}
-            <Route path="/waitlist" element={<WaitlistPage />} />
-            <Route path="/home" element={<Index />} />
-            <Route path="/beta" element={<Navigate to="/auth/signup" replace />} />
-            
-            {/* Auth routes */}
-            <Route path="/auth" element={<AuthLayout />}>
-              <Route path="login" element={<Login />} />
-              <Route path="signup" element={<Signup />} />
-              <Route path="forgot-password" element={<ForgotPassword />} />
-            </Route>
-            
-            {/* Dashboard routes - protected */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/profile" element={<Profile />} />
-            <Route path="/dashboard/settings" element={<Settings />} />
-            
-            {/* Jobs routes */}
-            <Route path="/dashboard/jobs" element={<JobsListPage />} />
-            <Route path="/dashboard/jobs/new" element={<NewJobPage />} />
-            <Route path="/dashboard/jobs/:jobId" element={<JobDetailPage />} />
-            <Route path="/dashboard/jobs/history" element={<JobHistoryPage />} />
-            <Route path="/dashboard/jobs/payment-success" element={<PaymentSuccessPage />} />
-            <Route path="/dashboard/jobs/payment-failed" element={<PaymentFailedPage />} />
-            
-            {/* Admin routes */}
-            <Route path="/dashboard/admin/invites" element={<BetaInvites />} />
-            <Route path="/dashboard/admin/users" element={<BetaInvites />} /> {/* Placeholder */}
-            
-            {/* Redirect /auth to /auth/login */}
-            <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              {/* Keep waitlist page for redirection purposes */}
+              <Route path="/waitlist" element={<WaitlistPage />} />
+              <Route path="/home" element={<Index />} />
+              <Route path="/beta" element={<Navigate to="/auth/signup" replace />} />
+              
+              {/* Auth routes */}
+              <Route path="/auth" element={<AuthLayout />}>
+                <Route path="login" element={<Login />} />
+                <Route path="signup" element={<Signup />} />
+                <Route path="forgot-password" element={<ForgotPassword />} />
+              </Route>
+              
+              {/* Dashboard routes - protected */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/profile" element={<Profile />} />
+              <Route path="/dashboard/settings" element={<Settings />} />
+              
+              {/* Jobs routes */}
+              <Route path="/dashboard/jobs" element={<JobsListPage />} />
+              <Route path="/dashboard/jobs/new" element={<NewJobPage />} />
+              <Route path="/dashboard/jobs/:jobId" element={<JobDetailPage />} />
+              <Route path="/dashboard/jobs/history" element={<JobHistoryPage />} />
+              <Route path="/dashboard/jobs/payment-success" element={<PaymentSuccessPage />} />
+              <Route path="/dashboard/jobs/payment-failed" element={<PaymentFailedPage />} />
+              
+              {/* Admin routes */}
+              <Route path="/dashboard/admin/invites" element={<BetaInvites />} />
+              <Route path="/dashboard/admin/users" element={<BetaInvites />} /> {/* Placeholder */}
+              
+              {/* Redirect /auth to /auth/login */}
+              <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );
 
 export default App;

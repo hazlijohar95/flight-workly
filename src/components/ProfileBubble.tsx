@@ -70,27 +70,29 @@ const ProfileBubble: React.FC<ProfileBubbleProps> = ({
     >
       <div className="relative group">
         {skill && !isBlurred ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {!imageError ? (
-                <img 
-                  src={image} 
-                  alt={skill} 
-                  className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md transition-all duration-300 hover:shadow-lg ${animationClasses.float}`}
-                  onError={handleImageError}
-                />
-              ) : (
-                <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md ${animationClasses.float}`}>
-                  <AvatarFallback className="bg-gray-300 text-gray-600">
-                    {size === "sm" ? "?" : "User"}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-            </TooltipTrigger>
-            <TooltipContent className="bg-black/80 text-white border-none py-1 px-2">
-              {skill}
-            </TooltipContent>
-          </Tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {!imageError ? (
+                  <img 
+                    src={image} 
+                    alt={skill} 
+                    className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md transition-all duration-300 hover:shadow-lg ${animationClasses.float}`}
+                    onError={handleImageError}
+                  />
+                ) : (
+                  <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md ${animationClasses.float}`}>
+                    <AvatarFallback className="bg-gray-300 text-gray-600">
+                      {size === "sm" ? "?" : "User"}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </TooltipTrigger>
+              <TooltipContent className="bg-black/80 text-white border-none py-1 px-2">
+                {skill}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : (
           <>
             {!imageError ? (

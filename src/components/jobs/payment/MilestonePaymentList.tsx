@@ -41,7 +41,7 @@ export default function MilestonePaymentList({
         .from("transactions")
         .select("*")
         .eq("job_id", job.id)
-        .is("milestone_id", "not.null");
+        .not("milestone_id", "is", null); // Fixed the query to use .not("milestone_id", "is", null)
         
       if (error) throw error;
       return data as Transaction[];
