@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallback?: ReactNode | ((props: { error: Error; resetErrorBoundary: () => void }) => ReactNode);
   onReset?: () => void;
 }
 
@@ -43,11 +43,21 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   };
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.hasError && this.state.error) {
+      // Handle function fallback
+      if (typeof this.props.fallback === 'function') {
+        return this.props.fallback({
+          error: this.state.error,
+          resetErrorBoundary: this.resetErrorBoundary
+        });
+      }
+      
+      // Handle ReactNode fallback
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
+      // Default fallback UI
       return (
         <Alert variant="destructive" className="my-4">
           <AlertCircle className="h-4 w-4" />

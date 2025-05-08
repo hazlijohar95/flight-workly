@@ -24,7 +24,8 @@ export default function PaymentErrorBoundary({
     toast.info("Payment system refreshed");
   };
 
-  const errorFallback = (error: Error) => {
+  // Create the fallback component based on props
+  const ErrorFallback = ({ error }: { error: Error }) => {
     if (showCard) {
       return (
         <Card className="mb-4">
@@ -80,7 +81,7 @@ export default function PaymentErrorBoundary({
 
   return (
     <ErrorBoundary
-      fallback={errorFallback}
+      fallback={ErrorFallback}
       onReset={handleReset}
     >
       {children}
