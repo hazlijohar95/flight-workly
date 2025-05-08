@@ -12,6 +12,7 @@ export async function handleCreatePayment(
   const { 
     jobId, 
     bidId, 
+    milestoneId, // Added support for milestone payments
     amount, 
     currency, 
     buyerName, 
@@ -66,6 +67,7 @@ export async function handleCreatePayment(
     .insert({
       job_id: jobId,
       bid_id: bidId,
+      milestone_id: milestoneId || null, // Store milestone ID if provided
       amount: amount,
       fee_amount: feeAmount,
       currency: currency,
@@ -89,6 +91,18 @@ export async function handleCreatePayment(
   
   if (jobUpdateError) {
     console.error('Job update error:', jobUpdateError);
+  }
+  
+  // If this is a milestone payment, update the milestone status
+  if (milestoneId) {
+    const { error: milestoneUpdateError } = await supabase
+      .from('milestones')
+      .update({ status: 'in_progress' })
+      .eq('id', milestoneId);
+      
+    if (milestoneUpdateError) {
+      console.error('Milestone update error:', milestoneUpdateError);
+    }
   }
   
   return new Response(JSON.stringify({ 

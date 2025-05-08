@@ -5,25 +5,43 @@ interface TransactionDetailsProps {
   bid: Bid;
   transaction?: Transaction;
   currency: string;
+  compact?: boolean;
 }
 
-export default function TransactionDetails({ bid, transaction, currency }: TransactionDetailsProps) {
+export default function TransactionDetails({ bid, transaction, currency, compact = false }: TransactionDetailsProps) {
+  // For milestone payments, we use the transaction amount instead of the bid amount
+  const amount = transaction ? Number(transaction.amount) : Number(bid.fee);
+  const feeAmount = transaction ? Number(transaction.fee_amount) : (amount * 0.05);
+  const totalAmount = amount + feeAmount;
+  
+  if (compact) {
+    return (
+      <div className="text-xs border-t pt-2 space-y-1">
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground">Platform Fee:</span>
+          <span>{currency} {feeAmount.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between items-center font-medium">
+          <span>Total:</span>
+          <span>{currency} {totalAmount.toFixed(2)}</span>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="font-medium">Amount</span>
-        <span>{currency} {bid.fee.toFixed(2)}</span>
+        <span>{currency} {amount.toFixed(2)}</span>
       </div>
       <div className="flex justify-between items-center">
         <span className="font-medium">Platform Fee</span>
-        <span>{currency} {transaction?.fee_amount.toFixed(2) || (bid.fee * 0.05).toFixed(2)}</span>
+        <span>{currency} {feeAmount.toFixed(2)}</span>
       </div>
       <div className="flex justify-between items-center font-bold pt-2 border-t">
         <span>Total</span>
-        <span>{currency} {transaction 
-          ? (bid.fee + transaction.fee_amount).toFixed(2) 
-          : (bid.fee * 1.05).toFixed(2)}
-        </span>
+        <span>{currency} {totalAmount.toFixed(2)}</span>
       </div>
       
       {transaction?.disbursed_at && (

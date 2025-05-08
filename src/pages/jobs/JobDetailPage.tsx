@@ -10,6 +10,7 @@ import JobStatusSection from "@/components/jobs/JobStatusSection";
 import BidSection from "@/components/jobs/BidSection";
 import WorkflowSection from "@/components/jobs/WorkflowSection";
 import PaymentInfoSection from "@/components/jobs/PaymentInfoSection";
+import MilestoneSection from "@/components/jobs/MilestoneSection"; // Import the new MilestoneSection
 import { Job, Bid, Transaction } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -149,6 +150,10 @@ export default function JobDetailPage() {
     refetchJob();
   };
 
+  const handleJobUpdate = () => {
+    refetchJob();
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -172,6 +177,15 @@ export default function JobDetailPage() {
                 bid={acceptedBid} 
                 onStatusUpdate={handleWorkflowUpdate} 
               />
+              
+              {/* Add the Milestone Section */}
+              {(isOwner || (acceptedBid && isFreelancer && job.uses_milestones)) && (
+                <MilestoneSection
+                  job={job}
+                  isOwner={isOwner}
+                  onUpdateJob={handleJobUpdate}
+                />
+              )}
               
               <PaymentInfoSection 
                 job={job} 

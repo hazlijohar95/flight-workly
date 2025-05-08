@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
-import { Job, Transaction } from "@/types/job";
+import { Job, Transaction, Milestone } from "@/types/job";
 
 export default function PaymentSuccessPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -52,6 +52,24 @@ export default function PaymentSuccessPage() {
     },
     enabled: !!jobId,
   });
+
+  // Get milestone data if this is a milestone payment
+  const { data: milestone } = useQuery({
+    queryKey: ["milestone", transaction?.milestone_id],
+    queryFn: async () => {
+      if (!transaction?.milestone_id) return null;
+      
+      const { data, error } = await supabase
+        .from("milestones")
+        .select("*")
+        .eq("id", transaction.milestone_id)
+        .single();
+        
+      if (error) throw error;
+      return data as Milestone;
+    },
+    enabled: !!transaction?.milestone_id,
+  });
   
   // Update payment status if needed
   useEffect(() => {
@@ -83,6 +101,10 @@ export default function PaymentSuccessPage() {
         // Invalidate queries to refresh data
         queryClient.invalidateQueries({ queryKey: ["job", jobId] });
         queryClient.invalidateQueries({ queryKey: ["transaction", jobId] });
+        if (transaction.milestone_id) {
+          queryClient.invalidateQueries({ queryKey: ["milestone", transaction.milestone_id] });
+          queryClient.invalidateQueries({ queryKey: ["milestones", jobId] });
+        }
         
       } catch (error) {
         console.error("Error checking payment status:", error);
@@ -111,7 +133,10 @@ export default function PaymentSuccessPage() {
           <h1 className="text-2xl font-bold mb-2">Payment Successful!</h1>
           
           <p className="text-muted-foreground mb-6">
-            Your payment has been processed successfully and is now held in escrow until the job is completed.
+            {milestone 
+              ? `Your payment for milestone "${milestone.title}" has been processed successfully and is now held in escrow until the work is completed.`
+              : `Your payment has been processed successfully and is now held in escrow until the job is completed.`
+            }
           </p>
           
           {transaction && (
@@ -119,6 +144,13 @@ export default function PaymentSuccessPage() {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <span className="text-muted-foreground">Transaction ID:</span>
                 <span className="font-mono text-xs truncate">{transaction.chip_transaction_id || transaction.id}</span>
+                
+                {milestone && (
+                  <>
+                    <span className="text-muted-foreground">Milestone:</span>
+                    <span className="truncate">{milestone.title}</span>
+                  </>
+                )}
                 
                 <span className="text-muted-foreground">Amount:</span>
                 <span>{transaction.currency} {transaction.amount.toFixed(2)}</span>

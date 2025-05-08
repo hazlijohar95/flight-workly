@@ -2,14 +2,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
-import { Job, Bid, Transaction } from "@/types/job";
+import { Job, Bid, Transaction, Milestone } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import CompletedPaymentCard from "./payment/CompletedPaymentCard";
 import EscrowPaymentCard from "./payment/EscrowPaymentCard";
 import ProcessingPaymentCard from "./payment/ProcessingPaymentCard";
 import UnpaidPaymentCard from "./payment/UnpaidPaymentCard";
+import MilestonePaymentList from "./payment/MilestonePaymentList";
 
 interface PaymentSectionProps {
   job: Job;
@@ -29,8 +31,26 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
   
   const isJobOwner = user?.id === job.user_id;
   const isFreelancer = bid && user?.id === bid.user_id;
+
+  // Fetch milestones if the job uses them
+  const { data: milestones } = useQuery({
+    queryKey: ["milestones", job.id],
+    queryFn: async () => {
+      if (!job.uses_milestones) return null;
+      
+      const { data, error } = await supabase
+        .from("milestones")
+        .select("*")
+        .eq("job_id", job.id)
+        .order("order_index", { ascending: true });
+      
+      if (error) throw error;
+      return data as Milestone[];
+    },
+    enabled: !!job.uses_milestones,
+  });
   
-  const handleInitiatePayment = async () => {
+  const handleInitiatePayment = async (milestoneId?: string) => {
     if (!user || !profile) {
       toast.error("You must be logged in to make payments");
       return;
@@ -54,6 +74,18 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
         throw new Error("No active session found");
       }
       
+      // Determine payment amount - either use milestone amount or full bid amount
+      let paymentAmount = bid.fee;
+      let paymentReference = `Job ${job.id.substring(0, 8)}`;
+      
+      if (milestoneId && milestones) {
+        const milestone = milestones.find(m => m.id === milestoneId);
+        if (milestone) {
+          paymentAmount = Number(milestone.amount);
+          paymentReference = `Milestone: ${milestone.title} - ${job.id.substring(0, 8)}`;
+        }
+      }
+      
       // Call our edge function to create payment
       const response = await fetch(`https://tjdnpprinmfopgcrqtbe.supabase.co/functions/v1/chip-payment/create-payment`, {
         method: 'POST',
@@ -64,12 +96,13 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
         body: JSON.stringify({
           jobId: job.id,
           bidId: bid.id,
-          amount: bid.fee,
+          milestoneId: milestoneId || null,
+          amount: paymentAmount,
           currency: job.currency,
           buyerName: `${profile.first_name} ${profile.last_name}`,
           buyerEmail: user.email,
           payeeId: bid.user_id,
-          reference: `Job ${job.id.substring(0, 8)}`
+          reference: paymentReference
         })
       });
       
@@ -136,6 +169,22 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
     }
   };
   
+  // If the job uses milestones, show milestone payment components
+  if (job.uses_milestones && milestones && milestones.length > 0) {
+    return (
+      <MilestonePaymentList
+        job={job}
+        bid={bid}
+        milestones={milestones}
+        isJobOwner={!!isJobOwner}
+        isFreelancer={!!isFreelancer}
+        onInitiatePayment={handleInitiatePayment}
+        onPaymentComplete={onPaymentComplete}
+      />
+    );
+  }
+  
+  // Standard payment flow (non-milestone payments)
   // Funds have been disbursed to the freelancer
   if (transaction?.status === 'disbursed') {
     return (
@@ -173,7 +222,7 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
       <UnpaidPaymentCard
         bid={bid}
         currency={job.currency}
-        onInitiatePayment={handleInitiatePayment}
+        onInitiatePayment={() => handleInitiatePayment()}
       />
     );
   }

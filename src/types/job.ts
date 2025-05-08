@@ -14,6 +14,7 @@ export interface Job {
   updated_at: string;
   user_id: string;
   bids?: Bid[];
+  uses_milestones: boolean; // Added field for milestone support
 }
 
 export interface Bid {
@@ -40,10 +41,11 @@ export interface Transaction {
   payee_id: string;
   payment_method_id?: string;
   chip_transaction_id?: string;
-  chip_send_transaction_id?: string; // New field for CHIP Send transactions
-  status: 'pending' | 'completed' | 'failed' | 'released' | 'disbursed'; // Added 'disbursed' status
+  chip_send_transaction_id?: string;
+  milestone_id?: string; // Added field for milestone payments
+  status: 'pending' | 'completed' | 'failed' | 'released' | 'disbursed';
   escrow_released_at?: string;
-  disbursed_at?: string; // New field for disbursement timestamp
+  disbursed_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -69,6 +71,20 @@ export interface WorkSubmission {
   note: string;
   review_note?: string | null;
   status: 'pending_review' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+}
+
+// New interface for milestones
+export interface Milestone {
+  id: string;
+  job_id: string;
+  title: string;
+  description?: string;
+  amount: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'paid';
+  due_date?: string;
+  order_index: number;
   created_at: string;
   updated_at: string;
 }

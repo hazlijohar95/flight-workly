@@ -230,6 +230,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          uses_milestones: boolean
         }
         Insert: {
           bidding_end_time: string
@@ -245,6 +246,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          uses_milestones?: boolean
         }
         Update: {
           bidding_end_time?: string
@@ -260,8 +262,56 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          uses_milestones?: boolean
         }
         Relationships: []
+      }
+      milestones: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          job_id: string
+          order_index: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          job_id: string
+          order_index?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          job_id?: string
+          order_index?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_methods: {
         Row: {
@@ -387,6 +437,7 @@ export type Database = {
           fee_amount: number
           id: string
           job_id: string
+          milestone_id: string | null
           payee_id: string
           payer_id: string
           payment_method_id: string | null
@@ -403,6 +454,7 @@ export type Database = {
           fee_amount: number
           id?: string
           job_id: string
+          milestone_id?: string | null
           payee_id: string
           payer_id: string
           payment_method_id?: string | null
@@ -419,6 +471,7 @@ export type Database = {
           fee_amount?: number
           id?: string
           job_id?: string
+          milestone_id?: string | null
           payee_id?: string
           payer_id?: string
           payment_method_id?: string | null
@@ -438,6 +491,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
             referencedColumns: ["id"]
           },
           {
