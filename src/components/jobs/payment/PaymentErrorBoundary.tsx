@@ -80,7 +80,7 @@ export default function PaymentErrorBoundary({
 
   return (
     <ErrorBoundary
-      fallback={(error) => errorFallback(error)}
+      fallback={errorFallback}
       onReset={handleReset}
     >
       {children}

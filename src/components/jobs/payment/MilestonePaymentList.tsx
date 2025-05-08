@@ -2,14 +2,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AlertCircle, CheckCircle, CreditCard, Loader2 } from "lucide-react";
-
+import { CheckCircle } from "lucide-react";
 import { Job, Bid, Milestone, Transaction } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import TransactionDetails from "./TransactionDetails";
+import MilestoneCard from "./milestone/MilestoneCard";
+import MilestoneProgressBar from "./milestone/MilestoneProgressBar";
 
 interface MilestonePaymentListProps {
   job: Job;
@@ -41,7 +39,7 @@ export default function MilestonePaymentList({
         .from("transactions")
         .select("*")
         .eq("job_id", job.id)
-        .not("milestone_id", "is", null); // Fixed the query to use .not("milestone_id", "is", null)
+        .not("milestone_id", "is", null);
         
       if (error) throw error;
       return data as Transaction[];
@@ -106,9 +104,9 @@ export default function MilestonePaymentList({
   };
 
   // Function to get transaction status for a milestone
-  const getMilestonePaymentStatus = (milestoneId: string) => {
+  const getMilestoneTransaction = (milestoneId: string) => {
     if (!transactions) return null;
-    return transactions.find(t => t.milestone_id === milestoneId);
+    return transactions.find(t => t.milestone_id === milestoneId) || null;
   };
 
   // Calculate the total amount paid so far
@@ -134,116 +132,30 @@ export default function MilestonePaymentList({
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
-        <div className="bg-muted/20 p-3 rounded-md mb-4 text-sm">
-          <div className="flex justify-between">
-            <span>Total paid so far:</span>
-            <span className="font-medium">{job.currency} {totalPaid.toFixed(2)} of {totalBudget.toFixed(2)}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full" 
-              style={{ width: `${Math.min(100, (totalPaid / totalBudget) * 100)}%` }}
-            ></div>
-          </div>
-        </div>
+        <MilestoneProgressBar 
+          totalPaid={totalPaid} 
+          totalBudget={totalBudget} 
+          job={job} 
+        />
 
         <div className="space-y-4">
           {milestones.map((milestone) => {
-            const transaction = getMilestonePaymentStatus(milestone.id);
-            const isPaid = transaction && (transaction.status === 'completed' || transaction.status === 'released' || transaction.status === 'disbursed');
-            const isInEscrow = transaction && transaction.status === 'completed';
-            const isDisbursed = transaction && transaction.status === 'disbursed';
+            const transaction = getMilestoneTransaction(milestone.id);
             
             return (
-              <Card key={milestone.id} className="border shadow-sm">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-base">{milestone.title}</CardTitle>
-                    <Badge 
-                      variant={
-                        isDisbursed ? "success" : 
-                        isPaid ? "default" : 
-                        "outline"
-                      }
-                    >
-                      {isDisbursed ? "Paid" : 
-                       isInEscrow ? "In Escrow" : 
-                       "Unpaid"}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="pb-3 pt-1">
-                  {milestone.description && (
-                    <p className="text-sm text-muted-foreground mb-2">{milestone.description}</p>
-                  )}
-                  
-                  <div className="flex justify-between text-sm font-medium mb-3">
-                    <span>Amount:</span>
-                    <span>{job.currency} {Number(milestone.amount).toFixed(2)}</span>
-                  </div>
-                  
-                  {transaction && (
-                    <TransactionDetails 
-                      bid={bid}
-                      transaction={transaction}
-                      currency={job.currency}
-                      compact={true}
-                    />
-                  )}
-                  
-                  {isJobOwner && job.status === "in_progress" && !isPaid && (
-                    <Button
-                      className="w-full mt-3"
-                      disabled={!!payingMilestoneId}
-                      onClick={() => handlePayMilestone(milestone.id)}
-                    >
-                      {payingMilestoneId === milestone.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="mr-2 h-4 w-4" /> Pay This Milestone
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  
-                  {isJobOwner && isInEscrow && (
-                    <Button
-                      className="w-full mt-3"
-                      disabled={!!releasingTransactionId}
-                      onClick={() => handleReleaseMilestonePayment(transaction.id)}
-                    >
-                      {releasingTransactionId === transaction.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Releasing...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="mr-2 h-4 w-4" /> Release Payment
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  
-                  {isFreelancer && isInEscrow && (
-                    <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-200">
-                      <p className="text-sm text-blue-800">
-                        This milestone payment is in escrow and waiting to be released by the client.
-                      </p>
-                    </div>
-                  )}
-                  
-                  {isFreelancer && isDisbursed && (
-                    <div className="mt-3 p-3 bg-green-50 rounded-md border border-green-200">
-                      <p className="text-sm text-green-800">
-                        This milestone payment has been sent to your account.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <MilestoneCard
+                key={milestone.id}
+                job={job}
+                bid={bid}
+                milestone={milestone}
+                transaction={transaction}
+                isJobOwner={isJobOwner}
+                isFreelancer={isFreelancer}
+                payingMilestoneId={payingMilestoneId}
+                releasingTransactionId={releasingTransactionId}
+                onPayMilestone={handlePayMilestone}
+                onReleasePayment={handleReleaseMilestonePayment}
+              />
             );
           })}
         </div>
