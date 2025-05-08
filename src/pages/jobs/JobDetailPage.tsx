@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +16,7 @@ import { JOB_CATEGORIES } from "@/constants/jobCategories";
 
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
-  const { user, profile } = useRequireAuth({ requireBetaAccess: true });
+  const { user, profile } = useRequireAuth();
   const [showBidForm, setShowBidForm] = useState(false);
   const [hasBid, setHasBid] = useState(false);
   

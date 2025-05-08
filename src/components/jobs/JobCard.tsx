@@ -1,6 +1,6 @@
 
 import { formatDistance } from "date-fns";
-import { Clock, DollarSign } from "lucide-react";
+import { Clock, DollarSign, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,11 +15,13 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, showActions = true, isOwner = false }: JobCardProps) {
-  const categoryLabel = JOB_CATEGORIES.find(c => c.value === job.category)?.label || job.category;
+  const categoryInfo = JOB_CATEGORIES.find(c => c.value === job.category);
+  const categoryLabel = categoryInfo?.label || job.category;
   
   // Calculate time left until bidding ends
   const biddingEndsAt = new Date(job.bidding_end_time);
   const timeLeft = formatDistance(biddingEndsAt, new Date(), { addSuffix: true });
+  const isUrgent = biddingEndsAt.getTime() - new Date().getTime() < 6 * 3600 * 1000; // 6 hours
   
   // Format currency
   const formattedBudget = `${job.currency} ${job.budget.toFixed(2)}`;
@@ -39,9 +41,13 @@ export function JobCard({ job, showActions = true, isOwner = false }: JobCardPro
         return 'bg-gray-500';
     }
   };
+  
+  // Format deadline date
+  const deadline = new Date(job.deadline);
+  const formattedDeadline = deadline.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden transition-all hover:shadow-md">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-bold line-clamp-2">{job.title}</CardTitle>
@@ -50,9 +56,10 @@ export function JobCard({ job, showActions = true, isOwner = false }: JobCardPro
           </Badge>
         </div>
         <div className="flex items-center text-sm text-muted-foreground mt-1">
+          <Tag className="h-3 w-3 mr-1" />
           <span className="font-medium mr-2">{categoryLabel}</span>
           <span className="text-xs">•</span>
-          <span className="ml-2">{new Date(job.created_at).toLocaleDateString()}</span>
+          <span className="ml-2 text-xs">Posted {new Date(job.created_at).toLocaleDateString()}</span>
         </div>
       </CardHeader>
       <CardContent className="pb-3">
@@ -69,8 +76,16 @@ export function JobCard({ job, showActions = true, isOwner = false }: JobCardPro
           </div>
           <div className="flex items-center">
             <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-            <span className="text-sm">Bidding ends {timeLeft}</span>
+            <span className={`text-sm ${isUrgent ? 'text-red-500 font-medium' : ''}`}>
+              Due {formattedDeadline}
+            </span>
           </div>
+        </div>
+        
+        <div className="mt-3">
+          <Badge variant="outline" className={`text-xs ${isUrgent ? 'bg-red-50 text-red-800 border-red-200' : 'bg-blue-50 text-blue-800 border-blue-200'}`}>
+            {isUrgent ? 'Urgent' : 'Bidding ends'} {timeLeft}
+          </Badge>
         </div>
       </CardContent>
       

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { DollarSign, Clock, Link as LinkIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,19 +91,27 @@ export default function BidForm({ job, onBidSubmitted }: BidFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-100">
+          <p className="text-sm font-medium text-gray-700">Job Budget: {job.currency} {job.budget.toFixed(2)}</p>
+        </div>
+        
         <div className="flex gap-4">
           <FormField
             control={form.control}
             name="fee"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>Your Fee ({job.currency})</FormLabel>
+                <FormLabel className="flex items-center">
+                  <DollarSign className="w-4 h-4 mr-1" />
+                  Your Fee ({job.currency})
+                </FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
-                    placeholder="0.00" 
+                    placeholder="Enter your price" 
                     {...field} 
                     onChange={e => field.onChange(parseFloat(e.target.value))}
+                    className="text-lg font-medium"
                   />
                 </FormControl>
                 <FormMessage />
@@ -115,7 +124,10 @@ export default function BidForm({ job, onBidSubmitted }: BidFormProps) {
             name="time_estimate"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>Time Estimate (hours)</FormLabel>
+                <FormLabel className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  Time Estimate (hours)
+                </FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
@@ -135,10 +147,16 @@ export default function BidForm({ job, onBidSubmitted }: BidFormProps) {
           name="portfolio_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Portfolio URL (optional)</FormLabel>
+              <FormLabel className="flex items-center">
+                <LinkIcon className="w-4 h-4 mr-1" />
+                Portfolio or Sample Work (optional)
+              </FormLabel>
               <FormControl>
                 <Input placeholder="https://your-portfolio.com" {...field} />
               </FormControl>
+              <FormDescription>
+                Share a link to relevant work to increase your chances
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -149,18 +167,23 @@ export default function BidForm({ job, onBidSubmitted }: BidFormProps) {
           name="note"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Note (optional)</FormLabel>
+              <FormLabel>Why you're perfect for this job (optional)</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Brief note to the job poster" 
+                  placeholder="Brief note about your skills and experience relevant to this job" 
                   maxLength={200}
                   className="resize-none" 
                   {...field} 
                 />
               </FormControl>
-              <FormDescription>
-                Max 200 characters
-              </FormDescription>
+              <div className="flex justify-between">
+                <FormDescription>
+                  Max 200 characters
+                </FormDescription>
+                <FormDescription>
+                  {field.value?.length || 0}/200
+                </FormDescription>
+              </div>
               <FormMessage />
             </FormItem>
           )}
