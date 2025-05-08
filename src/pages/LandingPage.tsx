@@ -20,14 +20,14 @@ const LandingPage = () => {
     setIsLoaded(true);
   }, []);
   
-  const handleJoinWaitlist = () => {
-    navigate('/waitlist');
+  const handleGetStarted = () => {
+    navigate('/auth/signup');
   };
   
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       <BackgroundCanvas />
-      <Header showEarlyAdopter={true} />
+      <Header showEarlyAdopter={false} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 relative pt-4">
@@ -98,10 +98,10 @@ const LandingPage = () => {
                 </h2>
                 
                 <Button 
-                  onClick={handleJoinWaitlist}
+                  onClick={handleGetStarted}
                   className="bg-[#121212] hover:bg-black hover:shadow-md text-white font-medium px-8 py-2 rounded-md text-lg transition-colors"
                 >
-                  Join the Waitlist
+                  Get Started
                 </Button>
               </div>
             </div>

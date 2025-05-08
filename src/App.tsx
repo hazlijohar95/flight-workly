@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,9 +34,10 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            {/* Keep waitlist page for redirection purposes */}
             <Route path="/waitlist" element={<WaitlistPage />} />
             <Route path="/home" element={<Index />} />
-            <Route path="/beta" element={<BetaAccess />} />
+            <Route path="/beta" element={<Navigate to="/auth/signup" replace />} />
             
             {/* Auth routes */}
             <Route path="/auth" element={<AuthLayout />}>
