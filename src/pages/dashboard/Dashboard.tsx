@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, FileText, Briefcase, UserRound } from "lucide-react";
@@ -6,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Link, useNavigate } from "react-router-dom";
+import JobHistory from "@/components/jobs/JobHistory";
 
 export default function Dashboard() {
   // Use requireAuth with no beta access requirement
@@ -148,6 +148,11 @@ export default function Dashboard() {
             </Card>
           </div>
         )}
+        
+        {/* Job History Component */}
+        <div className="md:col-span-2 lg:col-span-3">
+          <JobHistory />
+        </div>
         
         {isAdmin && (
           <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">

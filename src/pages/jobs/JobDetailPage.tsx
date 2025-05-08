@@ -9,6 +9,7 @@ import JobDetails from "@/components/jobs/JobDetails";
 import BidFormContainer from "@/components/jobs/BidFormContainer";
 import BidList from "@/components/jobs/BidList";
 import PaymentSection from "@/components/jobs/PaymentSection";
+import JobCompletionWorkflow from "@/components/jobs/JobCompletionWorkflow";
 import { Job, Bid, Transaction } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -132,6 +133,10 @@ export default function JobDetailPage() {
     refetchJob();
   };
 
+  const handleWorkflowUpdate = () => {
+    refetchJob();
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -149,6 +154,17 @@ export default function JobDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <JobDetails job={job} categoryLabel={categoryLabel} />
+              
+              {/* Job Completion Workflow - Display when job is in progress or beyond */}
+              {job.status === "in_progress" || job.status === "complete" ? (
+                <div className="mt-6">
+                  <JobCompletionWorkflow 
+                    job={job} 
+                    bid={acceptedBid} 
+                    onStatusUpdate={handleWorkflowUpdate}
+                  />
+                </div>
+              ) : null}
               
               {/* Payment Section - Display for job owners and accepted freelancers */}
               {(isOwner || (isFreelancer && acceptedBid?.user_id === user.id)) && 
