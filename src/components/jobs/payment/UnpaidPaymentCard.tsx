@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { AlertCircle, CreditCard, Loader2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,21 +8,16 @@ import TransactionDetails from "./TransactionDetails";
 interface UnpaidPaymentCardProps {
   bid: Bid;
   currency: string;
+  isProcessing: boolean;
   onInitiatePayment: () => Promise<void>;
 }
 
-export default function UnpaidPaymentCard({ bid, currency, onInitiatePayment }: UnpaidPaymentCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handlePayment = async () => {
-    setIsLoading(true);
-    try {
-      await onInitiatePayment();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+export default function UnpaidPaymentCard({ 
+  bid, 
+  currency, 
+  isProcessing,
+  onInitiatePayment 
+}: UnpaidPaymentCardProps) {
   return (
     <Card>
       <CardHeader className="bg-amber-50 border-b">
@@ -46,11 +40,11 @@ export default function UnpaidPaymentCard({ bid, currency, onInitiatePayment }: 
       </CardContent>
       <CardFooter className="border-t pt-4">
         <Button
-          onClick={handlePayment}
-          disabled={isLoading}
+          onClick={onInitiatePayment}
+          disabled={isProcessing}
           className="w-full"
         >
-          {isLoading ? (
+          {isProcessing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
             </>

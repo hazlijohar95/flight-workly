@@ -11,6 +11,7 @@ interface StandardPaymentHandlerProps {
   transaction?: Transaction;
   isJobOwner: boolean;
   isFreelancer: boolean;
+  isProcessing: boolean;
   onInitiatePayment: () => Promise<void>;
   onReleasePayment: () => Promise<void>;
 }
@@ -21,6 +22,7 @@ export default function StandardPaymentHandler({
   transaction,
   isJobOwner,
   isFreelancer,
+  isProcessing,
   onInitiatePayment,
   onReleasePayment
 }: StandardPaymentHandlerProps) {
@@ -45,6 +47,7 @@ export default function StandardPaymentHandler({
         transaction={transaction}
         isJobOwner={isJobOwner}
         isFreelancer={isFreelancer}
+        isProcessing={isProcessing}
         onReleasePayment={onReleasePayment}
       />
     );
@@ -61,6 +64,7 @@ export default function StandardPaymentHandler({
       <UnpaidPaymentCard
         bid={bid}
         currency={job.currency}
+        isProcessing={isProcessing}
         onInitiatePayment={onInitiatePayment}
       />
     );

@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { CheckCircle, ArrowDownLeft, Loader2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ interface EscrowPaymentCardProps {
   transaction?: Transaction;
   isJobOwner: boolean;
   isFreelancer: boolean;
+  isProcessing: boolean;
   onReleasePayment: () => Promise<void>;
 }
 
@@ -21,19 +21,9 @@ export default function EscrowPaymentCard({
   transaction, 
   isJobOwner, 
   isFreelancer,
+  isProcessing,
   onReleasePayment
 }: EscrowPaymentCardProps) {
-  const [isReleasing, setIsReleasing] = useState(false);
-  
-  const handleRelease = async () => {
-    setIsReleasing(true);
-    try {
-      await onReleasePayment();
-    } finally {
-      setIsReleasing(false);
-    }
-  };
-
   return (
     <Card>
       <CardHeader className="bg-green-50 border-b">
@@ -74,11 +64,11 @@ export default function EscrowPaymentCard({
       {isJobOwner && job.status === 'in_progress' && (
         <CardFooter className="border-t pt-4">
           <Button
-            onClick={handleRelease}
-            disabled={isReleasing}
+            onClick={onReleasePayment}
+            disabled={isProcessing}
             className="w-full"
           >
-            {isReleasing ? (
+            {isProcessing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing Disbursement...
               </>

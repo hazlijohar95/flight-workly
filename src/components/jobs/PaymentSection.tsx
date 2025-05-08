@@ -25,7 +25,7 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
   
   return (
     <PaymentProcessor job={job} bid={bid} user={user} profile={profile}>
-      {({ handleInitiatePayment, handleReleasePayment }) => (
+      {({ handleInitiatePayment, handleReleasePayment, isProcessing }) => (
         <>
           {/* Milestone-based payment flow */}
           {job.uses_milestones && (
@@ -44,9 +44,10 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
             <StandardPaymentHandler
               job={job}
               bid={bid}
-              transaction={transaction}
+              transaction={transaction || undefined} 
               isJobOwner={!!isJobOwner}
               isFreelancer={!!isFreelancer}
+              isProcessing={isProcessing}
               onInitiatePayment={() => handleInitiatePayment()}
               onReleasePayment={handleReleasePayment}
             />
