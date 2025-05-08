@@ -5,15 +5,21 @@ import { PlusCircle, FileText, Briefcase, UserRound } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   // Remove the requireBetaAccess parameter so all logged-in users can access the dashboard
   const { user, profile, isAdmin } = useRequireAuth();
+  const navigate = useNavigate();
   
   if (!user || !profile) {
     return <div>Loading...</div>;
   }
+
+  const handleCompleteProfile = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/dashboard/profile');
+  };
 
   return (
     <DashboardLayout>
@@ -37,14 +43,13 @@ export default function Dashboard() {
                 To use Flightworkly, please complete your profile and select your role:
                 are you a freelancer looking for work, or a business looking to hire?
               </p>
-              <Link to="/dashboard/profile">
-                <Button 
-                  variant="outline" 
-                  className="bg-amber-100 hover:bg-amber-200 border-amber-300"
-                >
-                  Complete Profile
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                className="bg-amber-100 hover:bg-amber-200 border-amber-300"
+                onClick={handleCompleteProfile}
+              >
+                Complete Profile
+              </Button>
             </CardContent>
           </Card>
         ) : profile.user_type === "freelancer" ? (
