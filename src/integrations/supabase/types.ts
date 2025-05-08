@@ -225,6 +225,7 @@ export type Database = {
           deadline: string
           description: string | null
           id: string
+          payment_status: string | null
           status: string
           title: string
           updated_at: string
@@ -239,6 +240,7 @@ export type Database = {
           deadline: string
           description?: string | null
           id?: string
+          payment_status?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -253,8 +255,45 @@ export type Database = {
           deadline?: string
           description?: string | null
           id?: string
+          payment_status?: string | null
           status?: string
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          card_type: string | null
+          created_at: string
+          id: string
+          is_default: boolean | null
+          last_four: string | null
+          payment_method_id: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_type?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          payment_method_id: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_type?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          payment_method_id?: string
+          provider?: string
           updated_at?: string
           user_id?: string
         }
@@ -333,6 +372,79 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          bid_id: string
+          chip_transaction_id: string | null
+          created_at: string
+          currency: string
+          escrow_released_at: string | null
+          fee_amount: number
+          id: string
+          job_id: string
+          payee_id: string
+          payer_id: string
+          payment_method_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bid_id: string
+          chip_transaction_id?: string | null
+          created_at?: string
+          currency: string
+          escrow_released_at?: string | null
+          fee_amount: number
+          id?: string
+          job_id: string
+          payee_id: string
+          payer_id: string
+          payment_method_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bid_id?: string
+          chip_transaction_id?: string | null
+          created_at?: string
+          currency?: string
+          escrow_released_at?: string | null
+          fee_amount?: number
+          id?: string
+          job_id?: string
+          payee_id?: string
+          payer_id?: string
+          payment_method_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
             referencedColumns: ["id"]
           },
         ]

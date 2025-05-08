@@ -21,6 +21,8 @@ import Settings from "./pages/dashboard/Settings";
 import JobsListPage from "./pages/jobs/JobsListPage";
 import NewJobPage from "./pages/jobs/NewJobPage";
 import JobDetailPage from "./pages/jobs/JobDetailPage";
+import PaymentSuccessPage from "./pages/jobs/PaymentSuccessPage";
+import PaymentFailedPage from "./pages/jobs/PaymentFailedPage";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +55,8 @@ const App = () => (
             <Route path="/dashboard/jobs" element={<JobsListPage />} />
             <Route path="/dashboard/jobs/new" element={<NewJobPage />} />
             <Route path="/dashboard/jobs/:jobId" element={<JobDetailPage />} />
+            <Route path="/dashboard/jobs/:jobId/payment-success" element={<PaymentSuccessPage />} />
+            <Route path="/dashboard/jobs/:jobId/payment-failed" element={<PaymentFailedPage />} />
             
             {/* Admin routes */}
             <Route path="/dashboard/admin/invites" element={<BetaInvites />} />

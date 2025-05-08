@@ -12,7 +12,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BidForm from "@/components/jobs/BidForm";
 import BidList from "@/components/jobs/BidList";
-import { Job, Bid } from "@/types/job";
+import PaymentSection from "@/components/jobs/PaymentSection"; // Import the payment section
+import { Job, Bid, Transaction } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { JOB_CATEGORIES } from "@/constants/jobCategories";
@@ -23,7 +24,7 @@ export default function JobDetailPage() {
   const [showBidForm, setShowBidForm] = useState(false);
   const [hasBid, setHasBid] = useState(false);
   
-  const { data: job, isLoading: isLoadingJob, error: jobError } = useQuery({
+  const { data: job, isLoading: isLoadingJob, error: jobError, refetch: refetchJob } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
       if (!jobId) return null;
@@ -53,6 +54,25 @@ export default function JobDetailPage() {
       if (error) throw error;
       return data as Bid[];
     },
+  });
+  
+  // Fetch transaction data if the job is in progress or complete
+  const { data: transaction } = useQuery({
+    queryKey: ["transaction", jobId],
+    queryFn: async () => {
+      if (!jobId || !user) return null;
+      
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("job_id", jobId)
+        .order("created_at", { ascending: false })
+        .limit(1);
+        
+      if (error) throw error;
+      return data[0] as Transaction | null;
+    },
+    enabled: !!jobId && !!user && !!job && (job.status === 'in_progress' || job.status === 'complete'),
   });
   
   // Check if the current user has already bid on this job
@@ -89,6 +109,9 @@ export default function JobDetailPage() {
   const isFreelancer = profile.user_type === "freelancer";
   const categoryLabel = JOB_CATEGORIES.find(c => c.value === job.category)?.label || job.category;
   
+  // Find the accepted bid if there is one
+  const acceptedBid = bids?.find(bid => bid.status === 'accepted') || null;
+  
   // Format dates
   const createdDate = format(new Date(job.created_at), "PPP");
   const deadlineDate = format(new Date(job.deadline), "PPP");
@@ -109,7 +132,13 @@ export default function JobDetailPage() {
   
   const handleBidAccepted = async () => {
     // Refetch job and bids data
+    refetchJob();
     refetchBids();
+  };
+  
+  const handlePaymentComplete = async () => {
+    // Refetch job and transaction data
+    refetchJob();
   };
 
   return (
@@ -141,6 +170,12 @@ export default function JobDetailPage() {
                 >
                   {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                 </Badge>
+                
+                {job.payment_status === 'paid' && (
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                    Payment in Escrow
+                  </Badge>
+                )}
               </div>
             </div>
             
@@ -197,20 +232,35 @@ export default function JobDetailPage() {
                       </div>
                     </div>
                     
-                    <div className="col-span-2 sm:col-span-3">
-                      <p className="text-sm text-muted-foreground">Bidding Status</p>
-                      <div className="flex items-center font-medium">
-                        <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-                        {biddingEnded ? (
-                          <span className="text-red-500">Bidding closed</span>
-                        ) : (
-                          <span>Bidding ends {biddingTimeLeft}</span>
-                        )}
+                    {job.status === 'open' && (
+                      <div className="col-span-2 sm:col-span-3">
+                        <p className="text-sm text-muted-foreground">Bidding Status</p>
+                        <div className="flex items-center font-medium">
+                          <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+                          {biddingEnded ? (
+                            <span className="text-red-500">Bidding closed</span>
+                          ) : (
+                            <span>Bidding ends {biddingTimeLeft}</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
+              
+              {/* Payment Section - Display for job owners and accepted freelancers */}
+              {(isOwner || (isFreelancer && acceptedBid?.user_id === user.id)) && 
+              job.status !== 'open' && (
+                <div className="mt-6">
+                  <PaymentSection 
+                    job={job} 
+                    bid={acceptedBid} 
+                    transaction={transaction || undefined} 
+                    onPaymentComplete={handlePaymentComplete}
+                  />
+                </div>
+              )}
               
               {/* Bid Form */}
               {showBidForm && (
