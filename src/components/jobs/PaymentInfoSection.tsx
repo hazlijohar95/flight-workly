@@ -31,9 +31,18 @@ export default function PaymentInfoSection({
     return null;
   }
   
-  // Check access permissions early - don't render for unauthorized users
+  // For debugging
+  console.log("PaymentInfoSection - Job status:", job.status);
+  console.log("PaymentInfoSection - Payment status:", job.payment_status);
+  console.log("PaymentInfoSection - Is owner:", isOwner);
+  console.log("PaymentInfoSection - Bid:", bid);
+  
+  // Check access permissions early - show for job owners when job is in_progress
   const hasAccess = isOwner || (isFreelancer && bid?.user_id === bid?.user_id);
-  if (!hasAccess || job.status === 'open') {
+  
+  // Only show payment section for in_progress jobs
+  if (!hasAccess || job.status !== 'in_progress') {
+    console.log("PaymentInfoSection - No access or job not in progress");
     return null;
   }
   

@@ -15,8 +15,19 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
   };
   
   const initiatePayment = async (milestoneId?: string) => {
+    console.log("Initiating payment for job:", job.id, "and bid:", bid.id);
+    console.log("User:", user?.id, "Profile:", profile);
+    
     if (!user || !profile) {
       const error = new Error("You must be logged in to make payments");
+      toast.error(error.message);
+      setPaymentError(error);
+      throw error;
+    }
+    
+    // Make sure bid is accepted before proceeding
+    if (bid.status !== 'accepted') {
+      const error = new Error("You must accept a bid before making a payment");
       toast.error(error.message);
       setPaymentError(error);
       throw error;
@@ -74,11 +85,18 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
         reference: paymentReference
       };
       
+      console.log("Payment data:", paymentData);
+      
       // Call payment API
       const result = await createChipPayment(session, paymentData);
+      console.log("Payment result:", result);
       
       // Redirect to payment page
-      window.location.href = result.payment_url;
+      if (result && result.payment_url) {
+        window.location.href = result.payment_url;
+      } else {
+        throw new Error("No payment URL returned from payment provider");
+      }
       
     } catch (error) {
       console.error("Payment initiation error:", error);

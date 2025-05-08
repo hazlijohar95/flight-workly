@@ -27,6 +27,7 @@ export function useJobDetail(jobId: string | undefined, userId: string | undefin
         .single();
         
       if (error) throw error;
+      console.log("Job data fetched:", data);
       return data as Job;
     },
   });
@@ -49,12 +50,16 @@ export function useJobDetail(jobId: string | undefined, userId: string | undefin
         .order("created_at", { ascending: false });
         
       if (error) throw error;
+      console.log("Bids data fetched:", data);
       return data as Bid[];
     },
   });
   
   // Fetch transaction data if the job is in progress or complete
-  const { data: transaction } = useQuery({
+  const { 
+    data: transaction,
+    refetch: refetchTransaction 
+  } = useQuery({
     queryKey: ["transaction", jobId],
     queryFn: async () => {
       if (!jobId || !userId) return null;
@@ -67,6 +72,7 @@ export function useJobDetail(jobId: string | undefined, userId: string | undefin
         .limit(1);
         
       if (error) throw error;
+      console.log("Transaction data fetched:", data);
       return data[0] as Transaction | null;
     },
     enabled: !!jobId && !!userId && !!job && (job.status === 'in_progress' || job.status === 'complete'),
@@ -100,22 +106,28 @@ export function useJobDetail(jobId: string | undefined, userId: string | undefin
   };
   
   const handleBidAccepted = async () => {
-    // Refetch job and bids data
-    refetchJob();
-    refetchBids();
+    // Refetch all data to update UI
+    console.log("Bid accepted, refetching data...");
+    await refetchBids();
+    await refetchJob();
+    await refetchTransaction();
   };
   
   const handlePaymentComplete = async () => {
     // Refetch job and transaction data
-    refetchJob();
+    console.log("Payment complete, refetching data...");
+    await refetchJob();
+    await refetchTransaction();
   };
 
-  const handleWorkflowUpdate = () => {
-    refetchJob();
+  const handleWorkflowUpdate = async () => {
+    console.log("Workflow updated, refetching data...");
+    await refetchJob();
   };
 
-  const handleJobUpdate = () => {
-    refetchJob();
+  const handleJobUpdate = async () => {
+    console.log("Job updated, refetching data...");
+    await refetchJob();
   };
   
   return {

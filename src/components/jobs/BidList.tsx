@@ -32,6 +32,7 @@ export default function BidList({ bids, jobId, onBidAccepted }: BidListProps) {
     }
     
     setLoadingBidId(bidId);
+    console.log("Accepting bid:", bidId, "for job:", jobId);
     
     try {
       // Update the bid status to accepted
@@ -41,7 +42,10 @@ export default function BidList({ bids, jobId, onBidAccepted }: BidListProps) {
         .eq('id', bidId)
         .eq('job_id', jobId);
         
-      if (bidError) throw bidError;
+      if (bidError) {
+        console.error("Error updating bid status:", bidError);
+        throw bidError;
+      }
       
       // Update the job status to in_progress
       const { error: jobError } = await supabase
@@ -49,7 +53,10 @@ export default function BidList({ bids, jobId, onBidAccepted }: BidListProps) {
         .update({ status: 'in_progress' })
         .eq('id', jobId);
         
-      if (jobError) throw jobError;
+      if (jobError) {
+        console.error("Error updating job status:", jobError);
+        throw jobError;
+      }
       
       // Reject all other bids
       const { error: otherBidsError } = await supabase
@@ -58,7 +65,10 @@ export default function BidList({ bids, jobId, onBidAccepted }: BidListProps) {
         .eq('job_id', jobId)
         .neq('id', bidId);
         
-      if (otherBidsError) throw otherBidsError;
+      if (otherBidsError) {
+        console.error("Error updating other bids:", otherBidsError);
+        throw otherBidsError;
+      }
       
       toast.success("Bid accepted successfully!");
       

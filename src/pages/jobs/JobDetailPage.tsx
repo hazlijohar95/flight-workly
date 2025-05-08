@@ -46,11 +46,21 @@ export default function JobDetailPage() {
     );
   }
   
+  // Debug information
+  console.log("JobDetailPage - Job:", job);
+  console.log("JobDetailPage - Bids:", bids);
+  console.log("JobDetailPage - Job status:", job.status);
+  console.log("JobDetailPage - Accepted bid:", acceptedBid);
+  console.log("JobDetailPage - Is owner:", isOwner);
+  
   const onBidSubmit = () => {
     handleBidSubmit();
-    
-    // Show success toast
     toast.success("Your bid has been submitted!");
+  };
+  
+  const onBidAccepted = () => {
+    handleBidAccepted();
+    toast.success("Bid accepted successfully! You can now make a payment.");
   };
 
   return (
@@ -70,7 +80,7 @@ export default function JobDetailPage() {
         showBidForm={showBidForm}
         onShowBidForm={() => setShowBidForm(true)}
         onBidSubmit={onBidSubmit}
-        onBidAccepted={handleBidAccepted}
+        onBidAccepted={onBidAccepted}
         onWorkflowUpdate={handleWorkflowUpdate}
         onPaymentComplete={handlePaymentComplete}
         onJobUpdate={handleJobUpdate}

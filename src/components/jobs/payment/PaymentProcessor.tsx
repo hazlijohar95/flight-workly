@@ -21,6 +21,11 @@ export default function PaymentProcessor({
   profile,
   children
 }: PaymentProcessorProps) {
+  // Debug information
+  console.log("PaymentProcessor - Job:", job);
+  console.log("PaymentProcessor - Bid:", bid);
+  console.log("PaymentProcessor - User:", user?.id);
+  
   const { initiatePayment, releasePayment, isProcessing } = usePayment(job, bid, user, profile);
 
   return children({

@@ -26,6 +26,15 @@ export default function StandardPaymentHandler({
   onInitiatePayment,
   onReleasePayment
 }: StandardPaymentHandlerProps) {
+  // Debug information
+  console.log("StandardPaymentHandler - Job:", job);
+  console.log("StandardPaymentHandler - Bid:", bid);
+  console.log("StandardPaymentHandler - Transaction:", transaction);
+  console.log("StandardPaymentHandler - isJobOwner:", isJobOwner);
+  console.log("StandardPaymentHandler - Job status:", job.status);
+  console.log("StandardPaymentHandler - Payment status:", job.payment_status);
+  console.log("StandardPaymentHandler - Bid status:", bid.status);
+  
   // Funds have been disbursed to the freelancer
   if (transaction?.status === 'disbursed') {
     return (
@@ -58,8 +67,10 @@ export default function StandardPaymentHandler({
     return <ProcessingPaymentCard />;
   }
   
-  // Default state - payment required
-  if (isJobOwner && job.status === 'in_progress' && (!job.payment_status || job.payment_status === 'unpaid')) {
+  // Default state - payment required - always show for job owner when job is in_progress
+  if (isJobOwner && job.status === 'in_progress' && bid.status === 'accepted' && 
+      (!job.payment_status || job.payment_status === 'unpaid')) {
+    console.log("StandardPaymentHandler - Showing payment button");
     return (
       <UnpaidPaymentCard
         bid={bid}
@@ -70,5 +81,6 @@ export default function StandardPaymentHandler({
     );
   }
   
+  console.log("StandardPaymentHandler - No payment card shown");
   return null;
 }
