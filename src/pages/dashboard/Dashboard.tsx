@@ -8,7 +8,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
-  const { user, profile, isAdmin } = useRequireAuth({ requireBetaAccess: true });
+  // Remove the requireBetaAccess parameter so all logged-in users can access the dashboard
+  const { user, profile, isAdmin } = useRequireAuth();
   
   if (!user || !profile) {
     return <div>Loading...</div>;
