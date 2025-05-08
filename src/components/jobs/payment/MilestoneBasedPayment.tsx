@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Job, Bid, Transaction, Milestone } from "@/types/job";
 import MilestonePaymentList from "./MilestonePaymentList";
+import PaymentErrorBoundary from "./PaymentErrorBoundary";
 
 interface MilestoneBasedPaymentProps {
   job: Job;
@@ -23,7 +24,7 @@ export default function MilestoneBasedPayment({
   onPaymentComplete
 }: MilestoneBasedPaymentProps) {
   // Fetch milestones
-  const { data: milestones } = useQuery({
+  const { data: milestones, error, isLoading, refetch } = useQuery({
     queryKey: ["milestones", job.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -38,19 +39,25 @@ export default function MilestoneBasedPayment({
     enabled: !!job.uses_milestones,
   });
 
+  if (isLoading) {
+    return <div className="animate-pulse bg-gray-100 h-40 rounded-md"></div>;
+  }
+
   if (!milestones || milestones.length === 0) {
     return null;
   }
 
   return (
-    <MilestonePaymentList
-      job={job}
-      bid={bid}
-      milestones={milestones}
-      isJobOwner={isJobOwner}
-      isFreelancer={isFreelancer}
-      onInitiatePayment={onInitiatePayment}
-      onPaymentComplete={onPaymentComplete}
-    />
+    <PaymentErrorBoundary onReset={() => refetch()}>
+      <MilestonePaymentList
+        job={job}
+        bid={bid}
+        milestones={milestones}
+        isJobOwner={isJobOwner}
+        isFreelancer={isFreelancer}
+        onInitiatePayment={onInitiatePayment}
+        onPaymentComplete={onPaymentComplete}
+      />
+    </PaymentErrorBoundary>
   );
 }

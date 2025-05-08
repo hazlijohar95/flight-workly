@@ -21,7 +21,7 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
       const { data: freelancerData, error: freelancerError } = await getFreelancerData(bid.user_id);
       
       if (freelancerError) {
-        throw freelancerError;
+        throw new Error(`Failed to retrieve freelancer data: ${freelancerError.message}`);
       }
       
       // Get auth token
@@ -39,7 +39,7 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
           .single();
           
         if (milestoneError) {
-          throw milestoneError;
+          throw new Error(`Failed to retrieve milestone data: ${milestoneError.message}`);
         }
         
         if (milestoneData) {
@@ -68,8 +68,10 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
       window.location.href = result.payment_url;
       
     } catch (error) {
-      console.error("Payment error:", error);
-      toast.error(error.message || "Failed to process payment");
+      console.error("Payment initiation error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown payment error";
+      toast.error(errorMessage || "Failed to process payment");
+      throw new Error(`Payment initiation failed: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }
@@ -77,6 +79,7 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
   
   const releasePayment = async () => {
     if (!user) {
+      toast.error("You must be logged in to release payments");
       return;
     }
     
@@ -97,7 +100,9 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
       
     } catch (error) {
       console.error("Payment release error:", error);
-      toast.error(error.message || "Failed to release payment");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast.error(errorMessage || "Failed to release payment");
+      throw new Error(`Payment release failed: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }

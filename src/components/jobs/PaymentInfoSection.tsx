@@ -1,6 +1,7 @@
 
 import { Job, Bid, Transaction } from "@/types/job";
 import PaymentSection from "@/components/jobs/PaymentSection";
+import PaymentErrorBoundary from "./payment/PaymentErrorBoundary";
 
 interface PaymentInfoSectionProps {
   job: Job;
@@ -26,12 +27,14 @@ export default function PaymentInfoSection({
 
   return (
     <div className="mt-6">
-      <PaymentSection 
-        job={job} 
-        bid={bid} 
-        transaction={transaction || undefined} 
-        onPaymentComplete={onPaymentComplete}
-      />
+      <PaymentErrorBoundary>
+        <PaymentSection 
+          job={job} 
+          bid={bid} 
+          transaction={transaction || undefined} 
+          onPaymentComplete={onPaymentComplete}
+        />
+      </PaymentErrorBoundary>
     </div>
   );
 }
