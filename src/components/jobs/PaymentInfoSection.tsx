@@ -1,15 +1,19 @@
 
+import { useState } from "react";
 import { Job, Bid, Transaction } from "@/types/job";
 import PaymentSection from "@/components/jobs/PaymentSection";
 import PaymentErrorBoundary from "./payment/PaymentErrorBoundary";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface PaymentInfoSectionProps {
-  job: Job;
+  job: Job | null;
   bid: Bid | null;
   transaction: Transaction | undefined;
   isOwner: boolean;
   isFreelancer: boolean;
-  onPaymentComplete: () => void;
+  onPaymentComplete?: () => void;
 }
 
 export default function PaymentInfoSection({ 
@@ -20,19 +24,52 @@ export default function PaymentInfoSection({
   isFreelancer, 
   onPaymentComplete 
 }: PaymentInfoSectionProps) {
-  if (!(isOwner || (isFreelancer && bid?.user_id === bid?.user_id)) || 
-      job.status === 'open') {
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Handle component errors outside the error boundary
+  if (!job) {
     return null;
+  }
+  
+  // Check access permissions early - don't render for unauthorized users
+  const hasAccess = isOwner || (isFreelancer && bid?.user_id === bid?.user_id);
+  if (!hasAccess || job.status === 'open') {
+    return null;
+  }
+  
+  const handlePaymentError = () => {
+    setIsProcessing(false);
+    toast.error("There was a problem processing your payment request");
+  };
+  
+  const handlePaymentComplete = () => {
+    setIsProcessing(false);
+    if (onPaymentComplete) {
+      onPaymentComplete();
+    }
+  };
+
+  // Loading state
+  if (isProcessing) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[100px]">
+          <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
+          <p className="text-sm text-muted-foreground">Processing payment request...</p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
     <div className="mt-6">
-      <PaymentErrorBoundary>
+      <PaymentErrorBoundary onReset={() => setIsProcessing(false)}>
         <PaymentSection 
           job={job} 
           bid={bid} 
-          transaction={transaction || undefined} 
-          onPaymentComplete={onPaymentComplete}
+          transaction={transaction} 
+          onPaymentComplete={handlePaymentComplete}
+          onPaymentError={handlePaymentError}
         />
       </PaymentErrorBoundary>
     </div>

@@ -11,9 +11,16 @@ interface PaymentSectionProps {
   bid: Bid | null;
   transaction?: Transaction;
   onPaymentComplete?: () => void;
+  onPaymentError?: () => void;
 }
 
-export default function PaymentSection({ job, bid, transaction, onPaymentComplete }: PaymentSectionProps) {
+export default function PaymentSection({ 
+  job, 
+  bid, 
+  transaction, 
+  onPaymentComplete,
+  onPaymentError
+}: PaymentSectionProps) {
   const { user, profile } = useAuth();
   
   // We need the accepted bid for payment
@@ -27,35 +34,58 @@ export default function PaymentSection({ job, bid, transaction, onPaymentComplet
   return (
     <PaymentErrorBoundary>
       <PaymentProcessor job={job} bid={bid} user={user} profile={profile}>
-        {({ handleInitiatePayment, handleReleasePayment, isProcessing }) => (
-          <>
-            {/* Milestone-based payment flow */}
-            {job.uses_milestones && (
-              <MilestoneBasedPayment
-                job={job}
-                bid={bid}
-                isJobOwner={!!isJobOwner}
-                isFreelancer={!!isFreelancer}
-                onInitiatePayment={handleInitiatePayment}
-                onPaymentComplete={onPaymentComplete}
-              />
-            )}
-            
-            {/* Standard payment flow (non-milestone payments) */}
-            {!job.uses_milestones && (
-              <StandardPaymentHandler
-                job={job}
-                bid={bid}
-                transaction={transaction || undefined} 
-                isJobOwner={!!isJobOwner}
-                isFreelancer={!!isFreelancer}
-                isProcessing={isProcessing}
-                onInitiatePayment={() => handleInitiatePayment()}
-                onReleasePayment={handleReleasePayment}
-              />
-            )}
-          </>
-        )}
+        {({ handleInitiatePayment, handleReleasePayment, isProcessing }) => {
+          // Create wrapped payment handlers that include error handling
+          const initiatePayment = async (milestoneId?: string) => {
+            try {
+              await handleInitiatePayment(milestoneId);
+              if (onPaymentComplete) onPaymentComplete();
+            } catch (error) {
+              console.error("Payment initiation error:", error);
+              if (onPaymentError) onPaymentError();
+            }
+          };
+          
+          const releasePayment = async () => {
+            try {
+              await handleReleasePayment();
+              if (onPaymentComplete) onPaymentComplete();
+            } catch (error) {
+              console.error("Payment release error:", error);
+              if (onPaymentError) onPaymentError();
+            }
+          };
+          
+          return (
+            <>
+              {/* Milestone-based payment flow */}
+              {job.uses_milestones && (
+                <MilestoneBasedPayment
+                  job={job}
+                  bid={bid}
+                  isJobOwner={!!isJobOwner}
+                  isFreelancer={!!isFreelancer}
+                  onInitiatePayment={initiatePayment}
+                  onPaymentComplete={onPaymentComplete}
+                />
+              )}
+              
+              {/* Standard payment flow (non-milestone payments) */}
+              {!job.uses_milestones && (
+                <StandardPaymentHandler
+                  job={job}
+                  bid={bid}
+                  transaction={transaction} 
+                  isJobOwner={!!isJobOwner}
+                  isFreelancer={!!isFreelancer}
+                  isProcessing={isProcessing}
+                  onInitiatePayment={initiatePayment}
+                  onReleasePayment={releasePayment}
+                />
+              )}
+            </>
+          );
+        }}
       </PaymentProcessor>
     </PaymentErrorBoundary>
   );

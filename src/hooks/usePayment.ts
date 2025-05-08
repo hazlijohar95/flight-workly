@@ -7,13 +7,22 @@ import { getFreelancerData, getAuthSession, createChipPayment, releaseChipPaymen
 
 export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<Error | null>(null);
+  
+  // Reset error state
+  const resetError = () => {
+    setPaymentError(null);
+  };
   
   const initiatePayment = async (milestoneId?: string) => {
     if (!user || !profile) {
-      toast.error("You must be logged in to make payments");
-      return;
+      const error = new Error("You must be logged in to make payments");
+      toast.error(error.message);
+      setPaymentError(error);
+      throw error;
     }
     
+    resetError();
     setIsProcessing(true);
     
     try {
@@ -21,7 +30,9 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
       const { data: freelancerData, error: freelancerError } = await getFreelancerData(bid.user_id);
       
       if (freelancerError) {
-        throw new Error(`Failed to retrieve freelancer data: ${freelancerError.message}`);
+        const error = new Error(`Failed to retrieve freelancer data: ${freelancerError.message}`);
+        setPaymentError(error);
+        throw error;
       }
       
       // Get auth token
@@ -39,7 +50,9 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
           .single();
           
         if (milestoneError) {
-          throw new Error(`Failed to retrieve milestone data: ${milestoneError.message}`);
+          const error = new Error(`Failed to retrieve milestone data: ${milestoneError.message}`);
+          setPaymentError(error);
+          throw error;
         }
         
         if (milestoneData) {
@@ -71,7 +84,12 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
       console.error("Payment initiation error:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown payment error";
       toast.error(errorMessage || "Failed to process payment");
-      throw new Error(`Payment initiation failed: ${errorMessage}`);
+      
+      // Store error state
+      setPaymentError(error instanceof Error ? error : new Error(errorMessage || "Unknown payment error"));
+      
+      // Rethrow for component error handling
+      throw error;
     } finally {
       setIsProcessing(false);
     }
@@ -79,10 +97,13 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
   
   const releasePayment = async () => {
     if (!user) {
-      toast.error("You must be logged in to release payments");
-      return;
+      const error = new Error("You must be logged in to release payments");
+      toast.error(error.message);
+      setPaymentError(error);
+      throw error;
     }
     
+    resetError();
     setIsProcessing(true);
     
     try {
@@ -102,7 +123,12 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
       console.error("Payment release error:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast.error(errorMessage || "Failed to release payment");
-      throw new Error(`Payment release failed: ${errorMessage}`);
+      
+      // Store error state
+      setPaymentError(error instanceof Error ? error : new Error(errorMessage || "Unknown payment error"));
+      
+      // Rethrow for component error handling
+      throw error;
     } finally {
       setIsProcessing(false);
     }
@@ -110,6 +136,8 @@ export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
 
   return {
     isProcessing,
+    paymentError,
+    resetError,
     initiatePayment,
     releasePayment
   };
