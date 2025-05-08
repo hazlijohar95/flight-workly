@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -5,11 +6,10 @@ import { toast } from "sonner";
 
 import DashboardLayout from "@/components/DashboardLayout";
 import JobHeader from "@/components/jobs/JobHeader";
-import JobDetails from "@/components/jobs/JobDetails";
-import BidFormContainer from "@/components/jobs/BidFormContainer";
-import BidList from "@/components/jobs/BidList";
-import PaymentSection from "@/components/jobs/PaymentSection";
-import JobCompletionWorkflow from "@/components/jobs/JobCompletionWorkflow";
+import JobStatusSection from "@/components/jobs/JobStatusSection";
+import BidSection from "@/components/jobs/BidSection";
+import WorkflowSection from "@/components/jobs/WorkflowSection";
+import PaymentInfoSection from "@/components/jobs/PaymentInfoSection";
 import { Job, Bid, Transaction } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -21,7 +21,13 @@ export default function JobDetailPage() {
   const [showBidForm, setShowBidForm] = useState(false);
   const [hasBid, setHasBid] = useState(false);
   
-  const { data: job, isLoading: isLoadingJob, error: jobError, refetch: refetchJob } = useQuery({
+  // Fetch job data
+  const { 
+    data: job, 
+    isLoading: isLoadingJob, 
+    error: jobError, 
+    refetch: refetchJob 
+  } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
       if (!jobId) return null;
@@ -37,7 +43,13 @@ export default function JobDetailPage() {
     },
   });
   
-  const { data: bids, isLoading: isLoadingBids, error: bidsError, refetch: refetchBids } = useQuery({
+  // Fetch bids data
+  const { 
+    data: bids, 
+    isLoading: isLoadingBids, 
+    error: bidsError, 
+    refetch: refetchBids 
+  } = useQuery({
     queryKey: ["bids", jobId],
     queryFn: async () => {
       if (!jobId) return [];
@@ -153,52 +165,51 @@ export default function JobDetailPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
-              <JobDetails job={job} categoryLabel={categoryLabel} />
+              <JobStatusSection job={job} categoryLabel={categoryLabel} />
               
-              {/* Job Completion Workflow - Display when job is in progress or beyond */}
-              {job.status === "in_progress" || job.status === "complete" ? (
+              <WorkflowSection 
+                job={job} 
+                bid={acceptedBid} 
+                onStatusUpdate={handleWorkflowUpdate} 
+              />
+              
+              <PaymentInfoSection 
+                job={job} 
+                bid={acceptedBid} 
+                transaction={transaction} 
+                isOwner={isOwner}
+                isFreelancer={isFreelancer}
+                onPaymentComplete={handlePaymentComplete}
+              />
+              
+              {isFreelancer && showBidForm && (
                 <div className="mt-6">
-                  <JobCompletionWorkflow 
-                    job={job} 
-                    bid={acceptedBid} 
-                    onStatusUpdate={handleWorkflowUpdate}
+                  <BidSection
+                    job={job}
+                    bids={[]}
+                    isLoadingBids={false}
+                    bidsError={null}
+                    isOwner={false}
+                    showBidForm={showBidForm}
+                    onBidSubmitted={handleBidSubmit}
+                    onBidAccepted={handleBidAccepted}
                   />
                 </div>
-              ) : null}
-              
-              {/* Payment Section - Display for job owners and accepted freelancers */}
-              {(isOwner || (isFreelancer && acceptedBid?.user_id === user.id)) && 
-              job.status !== 'open' && (
-                <div className="mt-6">
-                  <PaymentSection 
-                    job={job} 
-                    bid={acceptedBid} 
-                    transaction={transaction || undefined} 
-                    onPaymentComplete={handlePaymentComplete}
-                  />
-                </div>
-              )}
-              
-              {/* Bid Form */}
-              {showBidForm && (
-                <BidFormContainer job={job} onBidSubmitted={handleBidSubmit} />
               )}
             </div>
             
-            {/* Bids Section - Only visible to job owner */}
             <div className="md:col-span-1">
               {isOwner && (
-                isLoadingBids ? (
-                  <div className="text-center py-8">Loading bids...</div>
-                ) : bidsError ? (
-                  <div className="text-center text-red-500">Error loading bids</div>
-                ) : (
-                  <BidList 
-                    bids={bids || []} 
-                    jobId={job.id} 
-                    onBidAccepted={handleBidAccepted} 
-                  />
-                )
+                <BidSection
+                  job={job}
+                  bids={bids}
+                  isLoadingBids={isLoadingBids}
+                  bidsError={bidsError}
+                  isOwner={true}
+                  showBidForm={false}
+                  onBidSubmitted={handleBidSubmit}
+                  onBidAccepted={handleBidAccepted}
+                />
               )}
             </div>
           </div>
