@@ -23,7 +23,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 
@@ -46,7 +45,7 @@ type BetaInvite = {
   used_at: string | null;
 };
 
-export default function BetaInvites() {
+export default function BetaInvites(): JSX.Element {
   useRequireAuth({ requireAdmin: true });
   const [invites, setInvites] = useState<BetaInvite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,10 +70,11 @@ export default function BetaInvites() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {throw error;}
       setInvites(data || []);
-    } catch (error: any) {
-      toast.error(`Error loading invites: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Error loading invites: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -101,8 +101,9 @@ export default function BetaInvites() {
       toast.success(`Invite created for ${data.email}`);
       form.reset();
       fetchInvites();
-    } catch (error: any) {
-      toast.error(`Error creating invite: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Error creating invite: ${errorMessage}`);
     }
   };
 
@@ -121,13 +122,14 @@ export default function BetaInvites() {
         .delete()
         .in("id", selectedInvites);
 
-      if (error) throw error;
+      if (error) {throw error;}
       
       toast.success(`Deleted ${selectedInvites.length} invite(s)`);
       setSelectedInvites([]);
       fetchInvites();
-    } catch (error: any) {
-      toast.error(`Error deleting invites: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Error deleting invites: ${errorMessage}`);
     }
   };
 

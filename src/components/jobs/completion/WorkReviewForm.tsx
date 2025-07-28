@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { Job, WorkSubmission } from "@/types/job";
+import { logException } from "@/utils/logger";
 
 interface WorkReviewFormProps {
   job: Job;
@@ -13,11 +14,11 @@ interface WorkReviewFormProps {
   onStatusUpdate: () => void;
 }
 
-export default function WorkReviewForm({ job, workSubmission, onStatusUpdate }: WorkReviewFormProps) {
+export default function WorkReviewForm({ job, workSubmission, onStatusUpdate }: WorkReviewFormProps): JSX.Element {
   const [reviewNote, setReviewNote] = useState("");
   const [isReviewing, setIsReviewing] = useState(false);
 
-  const handleReviewWork = async (approved: boolean) => {
+  const handleReviewWork = async (approved: boolean): Promise<void> => {
     setIsReviewing(true);
     
     try {
@@ -29,7 +30,9 @@ export default function WorkReviewForm({ job, workSubmission, onStatusUpdate }: 
         })
         .eq("id", job.id);
         
-      if (jobError) throw jobError;
+      if (jobError) {
+        throw jobError;
+      }
       
       // Update the work submission status
       const { error: submissionError } = await supabase
@@ -40,7 +43,9 @@ export default function WorkReviewForm({ job, workSubmission, onStatusUpdate }: 
         })
         .eq("id", workSubmission.id);
         
-      if (submissionError) throw submissionError;
+      if (submissionError) {
+        throw submissionError;
+      }
       
       if (approved) {
         toast.success("Work approved! You can now release the payment.");
@@ -50,7 +55,7 @@ export default function WorkReviewForm({ job, workSubmission, onStatusUpdate }: 
       
       onStatusUpdate();
     } catch (error) {
-      console.error("Error reviewing work:", error);
+      logException(error, "WorkReviewForm.handleReviewWork");
       toast.error("Failed to process work review. Please try again.");
     } finally {
       setIsReviewing(false);

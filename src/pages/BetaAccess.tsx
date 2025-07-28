@@ -28,7 +28,7 @@ const betaAccessSchema = z.object({
 
 type BetaAccessFormValues = z.infer<typeof betaAccessSchema>;
 
-export default function BetaAccess() {
+export default function BetaAccess(): JSX.Element {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,8 +71,9 @@ export default function BetaAccess() {
       // Redirect to signup with the email pre-filled
       navigate(`/auth/signup?email=${encodeURIComponent(data.email)}&beta=true&invite=${inviteData.id}`);
       
-    } catch (error: any) {
-      toast.error(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Error: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }

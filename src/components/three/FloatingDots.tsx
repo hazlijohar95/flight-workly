@@ -8,9 +8,9 @@ type FloatingDotsProps = {
   count?: number;
 };
 
-const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
+const FloatingDots = ({ count = 20 }: FloatingDotsProps): JSX.Element => {
   const mesh = useRef<THREE.InstancedMesh>(null);
-  const { viewport } = useThree();
+  const { viewport: _viewport } = useThree();
   const { isMobile } = useResponsive();
   
   // Create dots with random positions
@@ -36,7 +36,9 @@ const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
   }, [count, isMobile]);
   
   useFrame(({ clock }) => {
-    if (!mesh.current) return;
+    if (!mesh.current) {
+      return;
+    }
     
     const dummy = new THREE.Object3D();
     const time = clock.getElapsedTime();
@@ -55,7 +57,7 @@ const FloatingDots = ({ count = 20 }: FloatingDotsProps) => {
       dummy.position.set(x, y, z);
       dummy.scale.set(size, size, size);
       dummy.updateMatrix();
-      mesh.current.setMatrixAt(i, dummy.matrix);
+      mesh.current!.setMatrixAt(i, dummy.matrix);
     });
     
     // Update the instance matrix

@@ -6,7 +6,7 @@ interface MilestoneSummaryProps {
   job: Job;
 }
 
-export default function MilestoneSummary({ milestones, job }: MilestoneSummaryProps) {
+export default function MilestoneSummary({ milestones, job }: MilestoneSummaryProps): JSX.Element | null {
   if (!milestones || milestones.length === 0) {
     return null;
   }

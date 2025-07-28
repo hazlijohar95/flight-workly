@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default function PaymentFailedPage() {
+export default function PaymentFailedPage(): JSX.Element {
   const { jobId } = useParams<{ jobId: string }>();
 
   return (

@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import JobHistory from "@/components/jobs/JobHistory";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
-export default function JobHistoryPage() {
+export default function JobHistoryPage(): JSX.Element {
   const { profile } = useRequireAuth();
 
   return (

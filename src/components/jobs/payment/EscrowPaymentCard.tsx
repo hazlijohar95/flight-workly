@@ -23,7 +23,7 @@ export default function EscrowPaymentCard({
   isFreelancer,
   isProcessing,
   onReleasePayment
-}: EscrowPaymentCardProps) {
+}: EscrowPaymentCardProps): JSX.Element {
   return (
     <Card>
       <CardHeader className="bg-green-50 border-b">

@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Loader2, CreditCard, CheckCircle } from "lucide-react";
 import { Job, Bid, Milestone, Transaction } from "@/types/job";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -31,7 +30,7 @@ export default function MilestoneCard({
   releasingTransactionId,
   onPayMilestone,
   onReleasePayment
-}: MilestoneCardProps) {
+}: MilestoneCardProps): JSX.Element {
   // Determine milestone payment status
   const isPaid = transaction && (transaction.status === 'completed' || transaction.status === 'released' || transaction.status === 'disbursed');
   const isInEscrow = transaction && transaction.status === 'completed';

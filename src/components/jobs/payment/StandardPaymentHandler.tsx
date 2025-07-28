@@ -4,6 +4,7 @@ import CompletedPaymentCard from "./CompletedPaymentCard";
 import EscrowPaymentCard from "./EscrowPaymentCard";
 import ProcessingPaymentCard from "./ProcessingPaymentCard";
 import UnpaidPaymentCard from "./UnpaidPaymentCard";
+import { logDebug } from "@/utils/logger";
 
 interface StandardPaymentHandlerProps {
   job: Job;
@@ -25,15 +26,15 @@ export default function StandardPaymentHandler({
   isProcessing,
   onInitiatePayment,
   onReleasePayment
-}: StandardPaymentHandlerProps) {
+}: StandardPaymentHandlerProps): JSX.Element | null {
   // Debug information
-  console.log("StandardPaymentHandler - Job:", job);
-  console.log("StandardPaymentHandler - Bid:", bid);
-  console.log("StandardPaymentHandler - Transaction:", transaction);
-  console.log("StandardPaymentHandler - isJobOwner:", isJobOwner);
-  console.log("StandardPaymentHandler - Job status:", job.status);
-  console.log("StandardPaymentHandler - Payment status:", job.payment_status);
-  console.log("StandardPaymentHandler - Bid status:", bid.status);
+  logDebug("StandardPaymentHandler - Job", undefined, { job });
+  logDebug("StandardPaymentHandler - Bid", undefined, { bid });
+  logDebug("StandardPaymentHandler - Transaction", undefined, { transaction });
+  logDebug("StandardPaymentHandler - isJobOwner", undefined, { isJobOwner });
+  logDebug("StandardPaymentHandler - Job status", undefined, { status: job.status });
+  logDebug("StandardPaymentHandler - Payment status", undefined, { payment_status: job.payment_status });
+  logDebug("StandardPaymentHandler - Bid status", undefined, { bid_status: bid.status });
   
   // Funds have been disbursed to the freelancer
   if (transaction?.status === 'disbursed') {
@@ -70,7 +71,7 @@ export default function StandardPaymentHandler({
   // Default state - payment required - always show for job owner when job is in_progress
   if (isJobOwner && job.status === 'in_progress' && bid.status === 'accepted' && 
       (!job.payment_status || job.payment_status === 'unpaid')) {
-    console.log("StandardPaymentHandler - Showing payment button");
+    logDebug("StandardPaymentHandler - Showing payment button");
     return (
       <UnpaidPaymentCard
         bid={bid}
@@ -81,6 +82,6 @@ export default function StandardPaymentHandler({
     );
   }
   
-  console.log("StandardPaymentHandler - No payment card shown");
+  logDebug("StandardPaymentHandler - No payment card shown");
   return null;
 }

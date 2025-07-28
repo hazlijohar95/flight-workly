@@ -14,7 +14,7 @@ export default function MilestoneHeader({
   isJobOwner,
   jobStatus,
   onToggleForm
-}: MilestoneHeaderProps) {
+}: MilestoneHeaderProps): JSX.Element {
   return (
     <div className="flex justify-between items-center">
       <h3 className="text-lg font-semibold">Payment Milestones</h3>

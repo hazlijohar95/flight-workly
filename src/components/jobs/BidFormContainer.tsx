@@ -8,7 +8,7 @@ interface BidFormContainerProps {
   onBidSubmitted: () => void;
 }
 
-export default function BidFormContainer({ job, onBidSubmitted }: BidFormContainerProps) {
+export default function BidFormContainer({ job, onBidSubmitted }: BidFormContainerProps): JSX.Element {
   return (
     <Card className="mt-6">
       <CardHeader>

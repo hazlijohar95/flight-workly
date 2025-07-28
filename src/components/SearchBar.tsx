@@ -1,46 +1,103 @@
 
-import React, { useState } from 'react';
-import { useResponsive } from '../hooks/use-responsive';
-import { colors } from '../theme/colors';
-import { stylePresets } from '../theme/colors';
+import { useState, useEffect, useCallback } from "react";
+import { Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface SearchBarProps {
-  placeholder: string;
-  label?: string;
+  onSearch: (query: string) => void;
+  placeholder?: string;
+  className?: string;
+  debounceMs?: number;
+  showClearButton?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder,
-  label
-}) => {
-  const [isFocused, setIsFocused] = useState(false);
-  const { isMobile } = useResponsive();
-  
+export default function SearchBar({ 
+  onSearch, 
+  placeholder = "Search...", 
+  className = "",
+  debounceMs = 300,
+  showClearButton = true,
+  size = 'md'
+}: SearchBarProps): JSX.Element {
+  const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const sizeClasses = {
+    sm: 'h-8 text-sm',
+    md: 'h-10 text-base',
+    lg: 'h-12 text-lg'
+  };
+
+  const iconSizes = {
+    sm: 'h-3 w-3',
+    md: 'h-4 w-4',
+    lg: 'h-5 w-5'
+  };
+
+  // Debounced search
+  const debouncedSearch = useCallback(
+    (searchQuery: string): void => {
+      if (searchQuery.trim()) {
+        setIsSearching(true);
+        onSearch(searchQuery);
+        setTimeout(() => setIsSearching(false), 500);
+      }
+    },
+    [onSearch]
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      debouncedSearch(query);
+    }, debounceMs);
+
+    return () => clearTimeout(timer);
+  }, [query, debounceMs, debouncedSearch]);
+
+  const handleClear = (): void => {
+    setQuery("");
+    onSearch("");
+  };
+
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    if (query.trim()) {
+      onSearch(query);
+    }
+  };
+
   return (
-    <div className={`relative w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-xl shadow-md border border-gray-100`}>
-      {label && (
-        <label className="block text-left mb-2 text-base md:text-lg font-medium text-gray-800">
-          {label}
-        </label>
-      )}
-      
-      <div className={`relative flex flex-col md:flex-row items-center gap-2 md:gap-0 transition-all duration-300 ${isFocused ? 'scale-[1.02]' : ''}`}>
-        <input 
-          type="text" 
-          placeholder={placeholder} 
-          className="w-full px-4 md:px-5 py-3 md:py-4 rounded-full md:rounded-l-full md:rounded-r-none text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF4081] pr-14 transition-all duration-300 hover:shadow-md text-sm md:text-base" 
-          onFocus={() => setIsFocused(true)} 
-          onBlur={() => setIsFocused(false)} 
+    <form onSubmit={handleSubmit} className={`relative ${className}`}>
+      <div className="relative group">
+        <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 ${iconSizes[size]} group-focus-within:text-[#FF4081] transition-colors duration-200`} />
+        <Input
+          type="text"
+          placeholder={placeholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className={`pl-10 pr-10 ${sizeClasses[size]} w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF4081] focus:border-transparent transition-all duration-200 hover:border-gray-400 group-hover:shadow-sm`}
         />
         
-        <button 
-          className="w-full md:w-auto px-4 md:px-6 py-3 md:py-4 text-white font-medium rounded-full md:rounded-l-none md:rounded-r-full transition-all duration-300 transform hover:scale-105 whitespace-nowrap shadow-md bg-[#121212] text-sm md:text-base"
-        >
-          {isMobile ? "Post job now" : "Post job & get offers instantly"}
-        </button>
+        {showClearButton && query && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={handleClear}
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
+          >
+            <X className={`${iconSizes[size]} text-gray-400 hover:text-gray-600`} />
+          </Button>
+        )}
+        
+        {isSearching && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#FF4081] border-t-transparent"></div>
+          </div>
+        )}
       </div>
-    </div>
+    </form>
   );
-};
-
-export default SearchBar;
+}

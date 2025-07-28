@@ -1,6 +1,5 @@
 
 import { Job } from "@/types/job";
-import { Card, CardContent } from "@/components/ui/card";
 import JobDetails from "@/components/jobs/JobDetails";
 
 interface JobStatusSectionProps {
@@ -8,7 +7,7 @@ interface JobStatusSectionProps {
   categoryLabel: string;
 }
 
-export default function JobStatusSection({ job, categoryLabel }: JobStatusSectionProps) {
+export default function JobStatusSection({ job, categoryLabel }: JobStatusSectionProps): JSX.Element {
   return (
     <div className="mb-6">
       <JobDetails job={job} categoryLabel={categoryLabel} />

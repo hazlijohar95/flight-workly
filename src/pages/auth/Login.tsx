@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -15,41 +14,67 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { formSchemas, type LoginFormData } from "@/utils/validation";
+import { ErrorHandler } from "@/utils/error-handler";
+import { authRateLimiter } from "@/utils/rate-limiter";
+import { toast } from "sonner";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-export default function Login() {
+export default function Login(): JSX.Element {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [remainingAttempts, setRemainingAttempts] = useState(5);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
   const navigate = useNavigate();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(formSchemas.login),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await signIn(data.email, data.password);
-      // Explicitly navigate to dashboard after successful login
-      navigate("/dashboard");
-    } catch (error: any) {
-      console.error(error);
-      setError(error.message || "Failed to sign in");
-    } finally {
-      setIsLoading(false);
+  const onSubmit = async (data: LoginFormData): Promise<void> => {
+    const emailKey = `login:${data.email}`;
+    
+    // Check rate limiting
+    if (!authRateLimiter.isAllowed(emailKey)) {
+      const remaining = authRateLimiter.getRemainingAttempts(emailKey);
+      const blockTime = authRateLimiter.getTimeUntilUnblocked(emailKey);
+      
+      if (remaining === 0) {
+        setIsBlocked(true);
+        setBlockTimeRemaining(blockTime);
+        toast.error(`Too many failed attempts. Please try again in ${Math.ceil(blockTime / 60000)} minutes.`);
+        return;
+      }
     }
+
+    const success = await ErrorHandler.wrapVoid(
+      async () => {
+        setIsLoading(true);
+        await signIn(data.email, data.password);
+        // Reset rate limiter on successful login
+        authRateLimiter.reset(emailKey);
+        navigate("/dashboard");
+      },
+      "Sign in"
+    );
+    
+    if (!success) {
+      // Record failed attempt
+      authRateLimiter.recordAttempt(emailKey);
+      const remaining = authRateLimiter.getRemainingAttempts(emailKey);
+      setRemainingAttempts(remaining);
+      
+      if (remaining === 0) {
+        setIsBlocked(true);
+        setBlockTimeRemaining(authRateLimiter.getTimeUntilUnblocked(emailKey));
+      }
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -61,12 +86,6 @@ export default function Login() {
         </p>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-6">
-          {error}
-        </div>
-      )}
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
           <FormField
@@ -76,7 +95,12 @@ export default function Login() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} />
+                  <Input 
+                    placeholder="you@example.com" 
+                    type="email"
+                    autoComplete="email"
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -98,7 +122,11 @@ export default function Login() {
                   </Link>
                 </div>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input 
+                    type="password" 
+                    autoComplete="current-password"
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -108,10 +136,22 @@ export default function Login() {
           <Button
             type="submit"
             className="w-full bg-[#121212] hover:bg-black"
-            disabled={isLoading}
+            disabled={isLoading || isBlocked}
           >
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Signing in..." : isBlocked ? "Account Temporarily Locked" : "Sign In"}
           </Button>
+
+          {remainingAttempts < 5 && remainingAttempts > 0 && (
+            <div className="text-center text-sm text-orange-600">
+              {remainingAttempts} login attempt{remainingAttempts !== 1 ? 's' : ''} remaining
+            </div>
+          )}
+
+          {isBlocked && (
+            <div className="text-center text-sm text-red-600">
+              Account locked. Try again in {Math.ceil(blockTimeRemaining / 60000)} minutes.
+            </div>
+          )}
 
           <div className="text-center text-sm">
             Don't have an account?{" "}

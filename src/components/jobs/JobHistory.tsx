@@ -15,13 +15,15 @@ interface JobHistoryProps {
   showViewAll?: boolean;
 }
 
-export default function JobHistory({ limit = 5, showViewAll = true }: JobHistoryProps) {
+export default function JobHistory({ limit = 5, showViewAll = true }: JobHistoryProps): JSX.Element {
   const { user, profile } = useAuth();
   
   const { data: completedJobs, isLoading } = useQuery({
     queryKey: ["completedJobs", user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return [];
+      }
       
       let query = supabase
         .from("jobs")
@@ -40,7 +42,9 @@ export default function JobHistory({ limit = 5, showViewAll = true }: JobHistory
           .eq("user_id", user.id)
           .eq("status", "accepted");
           
-        if (!acceptedBids?.length) return [];
+        if (!acceptedBids?.length) {
+          return [];
+        }
         
         const jobIds = acceptedBids.map(bid => bid.job_id);
         query = query.in("id", jobIds);
@@ -50,10 +54,12 @@ export default function JobHistory({ limit = 5, showViewAll = true }: JobHistory
         .order("updated_at", { ascending: false })
         .limit(limit);
         
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
       // Transform data to include bids as an array for each job
-      return data.map((job: any) => {
+      return data.map((job: Record<string, unknown>) => {
         const bidsArray = Array.isArray(job.bids) ? job.bids : [job.bids].filter(Boolean);
         return { ...job, bids: bidsArray };
       }) as Job[];

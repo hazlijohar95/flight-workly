@@ -2,7 +2,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { FileCheck } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Job, Bid, WorkSubmission } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import WorkSubmissionForm from "./completion/WorkSubmissionForm";
@@ -15,10 +15,31 @@ interface JobCompletionWorkflowProps {
   onStatusUpdate: () => void;
 }
 
-export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobCompletionWorkflowProps) {
+export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobCompletionWorkflowProps): JSX.Element | null {
   const { user } = useAuth();
   
-  if (!user || !bid) return null;
+  // Get the latest work submission - moved before any early returns to fix hooks rule
+  const { data: workSubmission } = useQuery({
+    queryKey: ["workSubmission", job.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("work_submissions")
+        .select("*")
+        .eq("job_id", job.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+        
+      if (error) {
+        throw error;
+      }
+      return data[0] as WorkSubmission | undefined;
+    },
+    enabled: !!user && !!bid, // Only run query if user and bid exist
+  });
+  
+  if (!user || !bid) {
+    return null;
+  }
   
   const isFreelancer = bid.user_id === user.id;
   const isJobOwner = job.user_id === user.id;
@@ -31,22 +52,6 @@ export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobC
   
   // If true, freelancer has submitted work but job owner hasn't approved/rejected
   const workSubmitted = job.status === "in_progress" && job.payment_status === "paid";
-  
-  // Get the latest work submission
-  const { data: workSubmission } = useQuery({
-    queryKey: ["workSubmission", job.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("work_submissions")
-        .select("*")
-        .eq("job_id", job.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
-        
-      if (error) throw error;
-      return data[0] as WorkSubmission | undefined;
-    },
-  });
 
   if (!canSubmitWork && !canReviewWork && !workSubmitted) {
     return null;
@@ -90,8 +95,6 @@ export default function JobCompletionWorkflow({ job, bid, onStatusUpdate }: JobC
           <WorkStatusDisplay workSubmission={workSubmission} />
         )}
       </CardContent>
-      
-      {/* CardFooter is now handled within each component */}
     </Card>
   );
 }

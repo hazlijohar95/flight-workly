@@ -1,155 +1,134 @@
 
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Job, Bid, Transaction } from "@/types/job";
-import { JOB_CATEGORIES } from "@/constants/jobCategories";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { logException, logInfo } from '@/utils/logger';
+import type { Job, Bid } from '@/types/job';
 
-export function useJobDetail(jobId: string | undefined, userId: string | undefined, isFreelancer: boolean) {
-  const [showBidForm, setShowBidForm] = useState(false);
-  const [hasBid, setHasBid] = useState(false);
-  
-  // Fetch job data
-  const { 
-    data: job, 
-    isLoading: isLoadingJob, 
-    error: jobError, 
-    refetch: refetchJob 
+interface JobDetailData {
+  job: Job | null;
+  bids: Bid[];
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
+  updateJob: (updates: Partial<Job>) => Promise<void>;
+  deleteJob: () => Promise<void>;
+}
+
+export function useJobDetail(jobId: string): JobDetailData {
+  const queryClient = useQueryClient();
+
+  // Fetch job details
+  const {
+    data: job,
+    isLoading: isLoadingJob,
+    error: jobError,
+    refetch: refetchJob
   } = useQuery({
-    queryKey: ["job", jobId],
-    queryFn: async () => {
-      if (!jobId) return null;
-      
+    queryKey: ['job', jobId],
+    queryFn: async (): Promise<Job | null> => {
       const { data, error } = await supabase
-        .from("jobs")
-        .select("*")
-        .eq("id", jobId)
+        .from('jobs')
+        .select('*')
+        .eq('id', jobId)
         .single();
-        
-      if (error) throw error;
-      console.log("Job data fetched:", data);
+
+      if (error) {
+        logException(error, 'useJobDetail.fetchJob');
+        throw error;
+      }
+
       return data as Job;
     },
+    enabled: !!jobId,
   });
-  
-  // Fetch bids data
-  const { 
-    data: bids, 
-    isLoading: isLoadingBids, 
-    error: bidsError, 
-    refetch: refetchBids 
+
+  // Fetch bids for the job
+  const {
+    data: bids = [],
+    isLoading: isLoadingBids,
+    error: bidsError,
+    refetch: refetchBids
   } = useQuery({
-    queryKey: ["bids", jobId],
-    queryFn: async () => {
-      if (!jobId) return [];
-      
+    queryKey: ['job-bids', jobId],
+    queryFn: async (): Promise<Bid[]> => {
       const { data, error } = await supabase
-        .from("bids")
-        .select("*")
-        .eq("job_id", jobId)
-        .order("created_at", { ascending: false });
-        
-      if (error) throw error;
-      console.log("Bids data fetched:", data);
+        .from('bids')
+        .select('*')
+        .eq('job_id', jobId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        logException(error, 'useJobDetail.fetchBids');
+        throw error;
+      }
+
       return data as Bid[];
     },
+    enabled: !!jobId,
   });
-  
-  // Fetch transaction data if the job is in progress or complete
-  const { 
-    data: transaction,
-    refetch: refetchTransaction 
-  } = useQuery({
-    queryKey: ["transaction", jobId],
-    queryFn: async () => {
-      if (!jobId || !userId) return null;
-      
-      const { data, error } = await supabase
-        .from("transactions")
-        .select("*")
-        .eq("job_id", jobId)
-        .order("created_at", { ascending: false })
-        .limit(1);
-        
-      if (error) throw error;
-      console.log("Transaction data fetched:", data);
-      return data[0] as Transaction | null;
+
+  // Update job mutation
+  const updateJobMutation = useMutation({
+    mutationFn: async (updates: Partial<Job>): Promise<void> => {
+      if (!jobId) {throw new Error('Job ID is required');}
+
+      const { error } = await supabase
+        .from('jobs')
+        .update(updates)
+        .eq('id', jobId);
+
+      if (error) {
+        logException(error, 'useJobDetail.updateJob');
+        throw error;
+      }
     },
-    enabled: !!jobId && !!userId && !!job && (job.status === 'in_progress' || job.status === 'complete'),
+    onSuccess: () => {
+      logInfo('Job updated successfully', 'useJobDetail');
+      queryClient.invalidateQueries({ queryKey: ['job', jobId] });
+    },
   });
-  
-  // Check if the current user has already bid on this job
-  useEffect(() => {
-    if (userId && bids) {
-      const userBid = bids.find(bid => bid.user_id === userId);
-      setHasBid(!!userBid);
-    }
-  }, [userId, bids]);
 
-  // Calculate derived state
-  const isOwner = job ? job.user_id === userId : false;
-  const categoryLabel = job ? 
-    JOB_CATEGORIES.find(c => c.value === job.category)?.label || job.category : '';
-  
-  // Find the accepted bid if there is one
-  const acceptedBid = bids?.find(bid => bid.status === 'accepted') || null;
-  
-  // Calculate bidding status
-  const biddingEndsAt = job ? new Date(job.bidding_end_time) : new Date();
-  const biddingEnded = new Date() > biddingEndsAt;
-  const canBid = isFreelancer && !isOwner && !hasBid && job?.status === "open" && !biddingEnded;
+  // Delete job mutation
+  const deleteJobMutation = useMutation({
+    mutationFn: async (): Promise<void> => {
+      if (!jobId) {throw new Error('Job ID is required');}
 
-  const handleBidSubmit = () => {
-    setShowBidForm(false);
-    setHasBid(true);
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
+
+      if (error) {
+        logException(error, 'useJobDetail.deleteJob');
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      logInfo('Job deleted successfully', 'useJobDetail');
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    },
+  });
+
+  const updateJob = async (updates: Partial<Job>): Promise<void> => {
+    await updateJobMutation.mutateAsync(updates);
+  };
+
+  const deleteJob = async (): Promise<void> => {
+    await deleteJobMutation.mutateAsync();
+  };
+
+  const refetch = (): void => {
+    refetchJob();
     refetchBids();
   };
-  
-  const handleBidAccepted = async () => {
-    // Refetch all data to update UI
-    console.log("Bid accepted, refetching data...");
-    await refetchBids();
-    await refetchJob();
-    await refetchTransaction();
-  };
-  
-  const handlePaymentComplete = async () => {
-    // Refetch job and transaction data
-    console.log("Payment complete, refetching data...");
-    await refetchJob();
-    await refetchTransaction();
-  };
 
-  const handleWorkflowUpdate = async () => {
-    console.log("Workflow updated, refetching data...");
-    await refetchJob();
-  };
-
-  const handleJobUpdate = async () => {
-    console.log("Job updated, refetching data...");
-    await refetchJob();
-  };
-  
   return {
-    job,
-    isLoadingJob,
-    jobError,
+    job: job || null,
     bids,
-    isLoadingBids,
-    bidsError,
-    transaction,
-    isOwner,
-    categoryLabel,
-    acceptedBid,
-    showBidForm,
-    setShowBidForm,
-    hasBid,
-    canBid,
-    biddingEnded,
-    handleBidSubmit,
-    handleBidAccepted,
-    handlePaymentComplete,
-    handleWorkflowUpdate,
-    handleJobUpdate
+    isLoading: isLoadingJob || isLoadingBids,
+    error: (jobError || bidsError) as Error | null,
+    refetch,
+    updateJob,
+    deleteJob,
   };
 }

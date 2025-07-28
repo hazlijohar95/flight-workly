@@ -1,9 +1,9 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,52 +15,57 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { logException } from "@/utils/logger";
+import { PasswordStrength } from "@/components/ui/password-strength";
 
-const signupSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+const formSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
 });
 
-type SignupFormValues = z.infer<typeof signupSchema>;
+type FormData = z.infer<typeof formSchema>;
 
-export default function Signup() {
+export default function Signup(): JSX.Element {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { signUp } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [showPasswordStrength, setShowPasswordStrength] = useState(false);
 
-  const form = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       password: "",
+      firstName: "",
+      lastName: "",
     },
   });
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = async (data: FormData): Promise<void> => {
+    setIsSubmitting(true);
     try {
-      setIsLoading(true);
       await signUp(data.email, data.password, data.firstName, data.lastName);
-    } catch (error) {
-      console.error(error);
+      navigate("/auth/verify-email");
+    } catch (error: unknown) {
+      logException(error, 'Signup.onSubmit');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div>
       <div className="text-center">
-        <h2 className="text-2xl font-bold">Create an account</h2>
+        <h2 className="text-2xl font-bold">Create your account</h2>
         <p className="text-sm text-gray-600 mt-2">
-          Join FlightWorkly to start hiring or working
+          Join Flight Workly and start your freelancing journey
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -98,7 +103,12 @@ export default function Signup() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} />
+                  <Input
+                    placeholder="you@example.com"
+                    type="email"
+                    autoComplete="email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -112,9 +122,20 @@ export default function Signup() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    onFocus={() => setShowPasswordStrength(true)}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
+                {showPasswordStrength && (
+                  <PasswordStrength 
+                    password={field.value} 
+                    className="mt-2"
+                  />
+                )}
               </FormItem>
             )}
           />
@@ -122,9 +143,9 @@ export default function Signup() {
           <Button
             type="submit"
             className="w-full bg-[#121212] hover:bg-black"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isSubmitting ? "Creating account..." : "Create Account"}
           </Button>
 
           <div className="text-center text-sm">

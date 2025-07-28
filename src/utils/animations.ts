@@ -11,7 +11,7 @@ export const combineAnimationClasses = (
   baseClasses: string,
   conditionalClasses?: { [key: string]: boolean }
 ): string => {
-  if (!conditionalClasses) return baseClasses;
+  if (!conditionalClasses) {return baseClasses;}
   
   const activeClasses = Object.entries(conditionalClasses)
     .filter(([_, isActive]) => isActive)

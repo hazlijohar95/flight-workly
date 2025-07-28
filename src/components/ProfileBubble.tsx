@@ -1,125 +1,77 @@
 
-import React, { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { colors } from '../theme/colors';
-import { animationClasses } from '../utils/animations';
+import React from 'react';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProfileBubbleProps {
+  id: string;
   image: string;
-  message?: string;
   position: {
     top?: string;
     bottom?: string;
     left?: string;
     right?: string;
   };
-  size?: "sm" | "md" | "lg";
-  isBlurred?: boolean;
+  size: "sm" | "md" | "lg";
+  message?: string;
   messageColor?: "blue" | "yellow" | "pink" | "green";
   delay?: number;
   skill?: string;
-  id?: string;
+  isBlurred?: boolean;
 }
 
-const ProfileBubble: React.FC<ProfileBubbleProps> = ({ 
-  image, 
-  message, 
-  position, 
-  size = "md",
-  isBlurred = false,
+export default function ProfileBubble({
+  id: _id,
+  image,
+  position,
+  size,
+  message,
   messageColor = "blue",
-  delay = 0,
+  delay: _delay = 0,
   skill,
-  id
-}) => {
-  const [imageError, setImageError] = useState(false);
-  
+  isBlurred = false
+}: ProfileBubbleProps): JSX.Element {
   const sizeClasses = {
     sm: "w-14 h-14",
-    md: "w-24 h-24",
+    md: "w-24 h-24", 
     lg: "w-28 h-28"
   };
-  
+
   const messageColorClasses = {
-    blue: `bg-[${colors.message.blue}] text-white`,
-    yellow: `bg-[${colors.message.yellow}] text-gray-800`,
-    pink: `bg-[${colors.message.pink}] text-white`,
-    green: `bg-[${colors.message.green}] text-white`
+    blue: "bg-blue-500 text-white",
+    yellow: "bg-yellow-400 text-gray-800",
+    pink: "bg-pink-500 text-white",
+    green: "bg-green-500 text-white"
   };
 
-  const blurClasses = isBlurred 
-    ? "opacity-40 filter blur-sm z-0" 
-    : "z-10 hover:scale-105 transition-transform duration-300";
-
-  const animationDelay = `${delay}ms`;
-  
-  const handleImageError = () => {
-    console.error(`Failed to load image: ${image}`);
-    setImageError(true);
+  const handleBubbleClick = (): void => {
+    // Handle bubble click - could be used for navigation or modal
   };
 
   return (
-    <div 
-      className={`absolute ${animationClasses.fadeIn} ${blurClasses}`}
-      style={{
-        ...position as React.CSSProperties,
-        animationDelay
-      }}
-      data-testid={`profile-bubble-${id}`}
+    <div
+      className={`absolute ${isBlurred ? 'blur-sm opacity-50' : ''} transition-all duration-300 hover:scale-105`}
+      style={position}
+      onClick={handleBubbleClick}
     >
-      <div className="relative group">
-        {skill && !isBlurred ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                {!imageError ? (
-                  <img 
-                    src={image} 
-                    alt={skill} 
-                    className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md transition-all duration-300 hover:shadow-lg ${animationClasses.float}`}
-                    onError={handleImageError}
-                  />
-                ) : (
-                  <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md ${animationClasses.float}`}>
-                    <AvatarFallback className="bg-gray-300 text-gray-600">
-                      {size === "sm" ? "?" : "User"}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </TooltipTrigger>
-              <TooltipContent className="bg-black/80 text-white border-none py-1 px-2">
-                {skill}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <>
-            {!imageError ? (
-              <img 
-                src={image} 
-                alt="Profile" 
-                className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-md ${isBlurred ? "filter blur-sm" : ""} transition-all duration-300 hover:shadow-lg ${animationClasses.float}`}
-                onError={handleImageError}
-              />
-            ) : (
-              <Avatar className={`${sizeClasses[size]} border-2 border-white shadow-md ${animationClasses.float}`}>
-                <AvatarFallback className="bg-gray-300 text-gray-600">
-                  {size === "sm" ? "?" : "User"}
-                </AvatarFallback>
-              </Avatar>
-            )}
-          </>
+      <div className="relative">
+        <Avatar className={`${sizeClasses[size]} cursor-pointer border-2 border-white shadow-lg`}>
+          <AvatarFallback className="bg-gray-200 text-gray-600 text-sm font-medium">
+            {image ? image.charAt(0).toUpperCase() : 'U'}
+          </AvatarFallback>
+        </Avatar>
+        
+        {message && (
+          <div className={`absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap px-2 py-1 rounded text-xs shadow-lg ${messageColorClasses[messageColor]}`}>
+            {message}
+          </div>
         )}
         
-        {message && !isBlurred && (
-          <div className={`absolute -bottom-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap ${messageColorClasses[messageColor]} shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300`}>
-            {message}
+        {skill && (
+          <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+            {skill}
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default ProfileBubble;
+}

@@ -45,12 +45,12 @@ interface MilestoneFormProps {
 }
 
 export default function MilestoneForm({
-  jobId,
-  jobBudget,
+  jobId: _jobId,
+  jobBudget: _jobBudget,
   onSubmit,
   initialValues,
   isSubmitting = false,
-}: MilestoneFormProps) {
+}: MilestoneFormProps): JSX.Element {
   const form = useForm<MilestoneFormValues>({
     resolver: zodResolver(milestoneSchema),
     defaultValues: {
@@ -61,7 +61,7 @@ export default function MilestoneForm({
     },
   });
 
-  const handleSubmit = async (values: MilestoneFormValues) => {
+  const handleSubmit = async (values: MilestoneFormValues): Promise<void> => {
     await onSubmit({
       ...values,
       amount: values.amount,

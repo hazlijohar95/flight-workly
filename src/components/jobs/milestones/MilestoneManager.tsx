@@ -9,6 +9,7 @@ import MilestoneList from "./MilestoneList";
 import MilestoneHeader from "./MilestoneHeader";
 import MilestoneSummary from "./MilestoneSummary";
 import MilestoneFormContainer from "./MilestoneFormContainer";
+import { logException } from "@/utils/logger";
 
 interface MilestoneManagerProps {
   job: Job;
@@ -16,11 +17,18 @@ interface MilestoneManagerProps {
   onUpdateJob: () => void;
 }
 
+interface MilestoneFormValues {
+  title: string;
+  description?: string;
+  amount: string;
+  due_date?: Date;
+}
+
 export default function MilestoneManager({ 
   job, 
   isJobOwner,
   onUpdateJob
-}: MilestoneManagerProps) {
+}: MilestoneManagerProps): JSX.Element {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
@@ -35,12 +43,14 @@ export default function MilestoneManager({
         .eq("job_id", job.id)
         .order("order_index", { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       return data as Milestone[];
     },
   });
 
-  const handleAddMilestone = async (values: any) => {
+  const handleAddMilestone = async (values: MilestoneFormValues): Promise<void> => {
     setIsSubmitting(true);
     
     try {
@@ -51,7 +61,9 @@ export default function MilestoneManager({
           .update({ uses_milestones: true })
           .eq("id", job.id);
         
-        if (jobError) throw jobError;
+        if (jobError) {
+          throw jobError;
+        }
       }
       
       const { error } = await supabase
@@ -61,25 +73,27 @@ export default function MilestoneManager({
           title: values.title,
           description: values.description || "",
           amount: Number(values.amount),
-          due_date: values.due_date,
+          due_date: values.due_date ? values.due_date.toISOString() : null,
           order_index: milestones ? milestones.length : 0,
         });
       
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
       toast.success("Milestone added successfully");
       queryClient.invalidateQueries({ queryKey: ["milestones", job.id] });
       setShowAddForm(false);
       onUpdateJob();
     } catch (error) {
-      console.error("Error adding milestone:", error);
+      logException(error, "MilestoneManager.handleAddMilestone");
       toast.error("Failed to add milestone");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleMilestoneAction = () => {
+  const handleMilestoneAction = (): void => {
     queryClient.invalidateQueries({ queryKey: ["milestones", job.id] });
     onUpdateJob();
   };
@@ -105,7 +119,7 @@ export default function MilestoneManager({
         onSubmit={handleAddMilestone}
       />
       
-      <MilestoneSummary milestones={milestones} job={job} />
+      <MilestoneSummary milestones={milestones || []} job={job} />
       
       {milestones && milestones.length > 0 ? (
         <MilestoneList 

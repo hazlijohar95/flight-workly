@@ -10,9 +10,9 @@ type FlowingGridProps = {
   size?: number;
 };
 
-const FlowingGrid = ({ count = 30, color = '#FF2D95', size = 0.05 }: FlowingGridProps) => {
+const FlowingGrid = ({ count = 30, color = '#FF2D95', size = 0.05 }: FlowingGridProps): JSX.Element => {
   const mesh = useRef<THREE.InstancedMesh>(null);
-  const { viewport } = useThree();
+  const { viewport: _viewport } = useThree();
   const { isMobile } = useResponsive();
   
   // Create grid points with initial positions
@@ -37,7 +37,9 @@ const FlowingGrid = ({ count = 30, color = '#FF2D95', size = 0.05 }: FlowingGrid
   
   // Animation loop
   useFrame(({ clock }) => {
-    if (!mesh.current) return;
+    if (!mesh.current) {
+      return;
+    }
     
     const dummy = new THREE.Object3D();
     const time = clock.getElapsedTime();
@@ -54,7 +56,7 @@ const FlowingGrid = ({ count = 30, color = '#FF2D95', size = 0.05 }: FlowingGrid
       dummy.position.set(position[0], position[1], z);
       dummy.scale.set(scale * size, scale * size, 1);
       dummy.updateMatrix();
-      mesh.current.setMatrixAt(i, dummy.matrix);
+      mesh.current!.setMatrixAt(i, dummy.matrix);
     });
     
     // Update the instance matrix

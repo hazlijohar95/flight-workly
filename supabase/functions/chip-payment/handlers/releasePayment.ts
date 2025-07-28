@@ -18,11 +18,14 @@ import {
 export async function handleReleasePayment(
   req: Request,
   supabase: SupabaseClient,
-  user: any,
-  requestData: any,
+  user: Record<string, unknown>,
+  requestData: Record<string, unknown>,
   corsHeaders: Record<string, string>
 ): Promise<Response> {
-  const { transactionId, jobId } = requestData;
+  const { transactionId, jobId } = requestData as {
+    transactionId: string;
+    jobId: string;
+  };
   
   // Get transaction details
   const { data: transactionData, error: transactionError } = await getTransactionData(supabase, transactionId);
@@ -92,8 +95,8 @@ export async function handleReleasePayment(
 async function executeChipPaymentFlow(
   epoch: number,
   checksum: string,
-  freelancerData: any,
-  transactionData: any,
+  freelancerData: Record<string, unknown>,
+  transactionData: Record<string, unknown>,
   jobId: string
 ): Promise<{ sendInstructionId: string, status: string }> {
   // 1. Check available balance

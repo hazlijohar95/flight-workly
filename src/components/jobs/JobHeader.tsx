@@ -17,13 +17,13 @@ interface JobHeaderProps {
 
 export default function JobHeader({ 
   job, 
-  isOwner, 
-  isFreelancer, 
+  isOwner: _isOwner, 
+  isFreelancer: _isFreelancer, 
   canBid, 
   hasBid,
   showBidForm,
   onShowBidForm
-}: JobHeaderProps) {
+}: JobHeaderProps): JSX.Element {
   const categoryLabel = job.category;
 
   return (

@@ -2,7 +2,7 @@
 import { Loader2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
-export default function ProcessingPaymentCard() {
+export default function ProcessingPaymentCard(): JSX.Element {
   return (
     <Card>
       <CardHeader className="bg-blue-50 border-b">

@@ -5,7 +5,7 @@ interface WorkStatusDisplayProps {
   workSubmission: WorkSubmission;
 }
 
-export default function WorkStatusDisplay({ workSubmission }: WorkStatusDisplayProps) {
+export default function WorkStatusDisplay({ workSubmission }: WorkStatusDisplayProps): JSX.Element {
   return (
     <div className="border rounded-md p-4 bg-muted/30">
       <div className="flex items-center mb-2">

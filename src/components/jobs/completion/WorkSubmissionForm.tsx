@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { Job, Bid } from "@/types/job";
+import { logException } from "@/utils/logger";
 
 interface WorkSubmissionFormProps {
   job: Job;
@@ -14,11 +15,11 @@ interface WorkSubmissionFormProps {
   onStatusUpdate: () => void;
 }
 
-export default function WorkSubmissionForm({ job, bid, userId, onStatusUpdate }: WorkSubmissionFormProps) {
+export default function WorkSubmissionForm({ job, bid, userId, onStatusUpdate }: WorkSubmissionFormProps): JSX.Element {
   const [deliverableNote, setDeliverableNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmitWork = async () => {
+  const handleSubmitWork = async (): Promise<void> => {
     if (!deliverableNote.trim()) {
       toast.error("Please provide details about your completed work");
       return;
@@ -38,12 +39,14 @@ export default function WorkSubmissionForm({ job, bid, userId, onStatusUpdate }:
           status: "pending_review"
         });
         
-      if (submissionError) throw submissionError;
+      if (submissionError) {
+        throw submissionError;
+      }
       
       toast.success("Work submitted successfully! Waiting for client review.");
       onStatusUpdate();
     } catch (error) {
-      console.error("Error submitting work:", error);
+      logException(error, "WorkSubmissionForm.handleSubmitWork");
       toast.error("Failed to submit work. Please try again.");
     } finally {
       setIsSubmitting(false);

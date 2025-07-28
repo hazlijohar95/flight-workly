@@ -1,5 +1,5 @@
 
-import { Job, Transaction } from "@/types/job";
+import { Job } from "@/types/job";
 
 interface MilestoneProgressBarProps {
   totalPaid: number;
@@ -11,7 +11,7 @@ export default function MilestoneProgressBar({
   totalPaid,
   totalBudget,
   job
-}: MilestoneProgressBarProps) {
+}: MilestoneProgressBarProps): JSX.Element {
   return (
     <div className="bg-muted/20 p-3 rounded-md mb-4 text-sm">
       <div className="flex justify-between">

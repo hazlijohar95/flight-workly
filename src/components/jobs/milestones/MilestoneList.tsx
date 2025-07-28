@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CalendarDays, Check, Clock, Edit, Trash } from "lucide-react";
+import { CalendarDays, Check, Clock, Trash } from "lucide-react";
 import { format } from "date-fns";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Milestone, Job } from "@/types/job";
+import { logException } from "@/utils/logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +35,7 @@ export default function MilestoneList({
   job,
   isJobOwner,
   onMilestoneAction,
-}: MilestoneListProps) {
+}: MilestoneListProps): JSX.Element {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isMarkingComplete, setIsMarkingComplete] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -47,7 +48,7 @@ export default function MilestoneList({
     );
   }
 
-  const handleDeleteMilestone = async (milestoneId: string) => {
+  const handleDeleteMilestone = async (milestoneId: string): Promise<void> => {
     setIsDeleting(milestoneId);
     
     try {
@@ -56,20 +57,24 @@ export default function MilestoneList({
         .delete()
         .eq("id", milestoneId);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
       toast.success("Milestone deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["milestones", job.id] });
-      if (onMilestoneAction) onMilestoneAction();
+      if (onMilestoneAction) {
+        onMilestoneAction();
+      }
     } catch (error) {
-      console.error("Error deleting milestone:", error);
+      logException(error, "MilestoneList.handleDeleteMilestone");
       toast.error("Failed to delete milestone");
     } finally {
       setIsDeleting(null);
     }
   };
 
-  const handleMarkComplete = async (milestoneId: string) => {
+  const handleMarkComplete = async (milestoneId: string): Promise<void> => {
     setIsMarkingComplete(milestoneId);
     
     try {
@@ -78,13 +83,17 @@ export default function MilestoneList({
         .update({ status: "completed" })
         .eq("id", milestoneId);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
       toast.success("Milestone marked as complete");
       queryClient.invalidateQueries({ queryKey: ["milestones", job.id] });
-      if (onMilestoneAction) onMilestoneAction();
+      if (onMilestoneAction) {
+        onMilestoneAction();
+      }
     } catch (error) {
-      console.error("Error updating milestone:", error);
+      logException(error, "MilestoneList.handleMarkComplete");
       toast.error("Failed to update milestone");
     } finally {
       setIsMarkingComplete(null);

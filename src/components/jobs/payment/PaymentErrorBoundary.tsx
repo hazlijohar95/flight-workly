@@ -12,77 +12,74 @@ interface PaymentErrorBoundaryProps {
   showCard?: boolean;
 }
 
-export default function PaymentErrorBoundary({
-  children,
-  onReset,
-  showCard = true
-}: PaymentErrorBoundaryProps) {
-  const handleReset = () => {
+// Create a fallback component that will be used by ErrorBoundary
+const PaymentErrorFallback = ({ showCard = true, onReset }: { showCard?: boolean; onReset?: () => void }): JSX.Element => {
+  const handleReset = (): void => {
     if (onReset) {
       onReset();
     }
     toast.info("Payment system refreshed");
   };
 
-  // Create the fallback component based on props
-  const ErrorFallback = ({ error }: { error: Error }) => {
-    if (showCard) {
-      return (
-        <Card className="mb-4">
-          <CardHeader className="bg-red-50 border-b">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-              <CardTitle className="text-lg">Payment System Error</CardTitle>
-            </div>
-            <CardDescription className="text-red-700">
-              There was a problem with the payment system
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground mb-4">
-              We encountered an issue while processing your request. This could be due to a network 
-              issue or a temporary problem with our payment provider.
-            </p>
-            <p className="text-sm font-mono bg-gray-100 p-2 rounded border">
-              {error.message || "Unknown error"}
-            </p>
-          </CardContent>
-          <CardFooter className="border-t pt-4">
-            <Button 
-              className="w-full"
-              onClick={handleReset}
-            >
-              <RefreshCw className="mr-2 h-4 w-4" /> Refresh Payment System
-            </Button>
-          </CardFooter>
-        </Card>
-      );
-    }
-
+  if (showCard) {
     return (
-      <div className="p-4 border border-red-200 bg-red-50 rounded-md my-4">
-        <div className="flex items-center mb-2">
-          <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-          <h4 className="font-medium">Payment Error</h4>
-        </div>
-        <p className="text-sm text-red-700 mb-3">
-          {error.message || "There was an issue with the payment system"}
-        </p>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={handleReset}
-        >
-          <RefreshCw className="mr-2 h-3 w-3" /> Try again
-        </Button>
-      </div>
+      <Card className="mb-4">
+        <CardHeader className="bg-red-50 border-b">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+            <CardTitle className="text-lg">Payment System Error</CardTitle>
+          </div>
+          <CardDescription className="text-red-700">
+            There was a problem with the payment system
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <p className="text-sm text-muted-foreground mb-4">
+            We encountered an issue while processing your request. This could be due to a network 
+            issue or a temporary problem with our payment provider.
+          </p>
+        </CardContent>
+        <CardFooter className="border-t pt-4">
+          <Button 
+            className="w-full"
+            onClick={handleReset}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" /> Refresh Payment System
+          </Button>
+        </CardFooter>
+      </Card>
     );
-  };
+  }
 
   return (
+    <div className="p-4 border border-red-200 bg-red-50 rounded-md my-4">
+      <div className="flex items-center mb-2">
+        <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+        <h4 className="font-medium">Payment Error</h4>
+      </div>
+      <p className="text-sm text-red-700 mb-3">
+        There was an issue with the payment system
+      </p>
+      <Button 
+        variant="outline" 
+        size="sm"
+        onClick={handleReset}
+      >
+        <RefreshCw className="mr-2 h-3 w-3" /> Try again
+      </Button>
+    </div>
+  );
+};
+
+export default function PaymentErrorBoundary({
+  children,
+  onReset,
+  showCard = true
+}: PaymentErrorBoundaryProps): JSX.Element {
+  return (
     <ErrorBoundary
-      fallback={ErrorFallback}
-      onReset={handleReset}
+      fallback={<PaymentErrorFallback showCard={showCard} onReset={onReset} />}
+      onReset={onReset}
     >
       {children}
     </ErrorBoundary>

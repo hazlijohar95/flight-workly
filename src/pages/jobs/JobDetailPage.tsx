@@ -6,8 +6,9 @@ import JobDetailLoader from "@/components/jobs/detail/JobDetailLoader";
 import JobDetailLayout from "@/components/jobs/detail/JobDetailLayout";
 import { useJobDetail } from "@/hooks/useJobDetail";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { logDebug } from "@/utils/logger";
 
-export default function JobDetailPage() {
+export default function JobDetailPage(): JSX.Element {
   const { jobId } = useParams<{ jobId: string }>();
   const { user, profile } = useRequireAuth();
   
@@ -47,11 +48,11 @@ export default function JobDetailPage() {
   }
   
   // Debug information
-  console.log("JobDetailPage - Job:", job);
-  console.log("JobDetailPage - Bids:", bids);
-  console.log("JobDetailPage - Job status:", job.status);
-  console.log("JobDetailPage - Accepted bid:", acceptedBid);
-  console.log("JobDetailPage - Is owner:", isOwner);
+  logDebug("JobDetailPage - Job", "JobDetailPage", { job });
+  logDebug("JobDetailPage - Bids", "JobDetailPage", { bids });
+  logDebug("JobDetailPage - Job status", "JobDetailPage", { status: job.status });
+  logDebug("JobDetailPage - Accepted bid", "JobDetailPage", { acceptedBid });
+  logDebug("JobDetailPage - Is owner", "JobDetailPage", { isOwner });
   
   const onBidSubmit = () => {
     handleBidSubmit();

@@ -14,7 +14,7 @@ const PulseEffect = ({ color = '#ffffff', pulseRadius = 12 }: PulseEffectProps) 
   const { isMobile } = useResponsive();
   
   useFrame(({ clock }) => {
-    if (!mesh.current) return;
+    if (!mesh.current) {return;}
     // Use a slower animation speed on mobile for better performance
     const speed = isMobile ? 0.3 : 0.4;
     const t = clock.getElapsedTime() * speed;

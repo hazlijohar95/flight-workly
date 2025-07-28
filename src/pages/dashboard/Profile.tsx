@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/context/AuthContext";
+
 import useRequireAuth from "@/hooks/useRequireAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { logException } from "@/utils/logger";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -51,12 +52,12 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 type FreelancerFormValues = z.infer<typeof freelancerSchema>;
 type JobPosterFormValues = z.infer<typeof jobPosterSchema>;
 
-export default function Profile() {
+export default function Profile(): JSX.Element {
   // Remove the beta access requirement to allow all users to access the profile page
   const { user, profile, updateProfile } = useRequireAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [freelancerProfile, setFreelancerProfile] = useState<any>(null);
-  const [jobPosterProfile, setJobPosterProfile] = useState<any>(null);
+  const [_freelancerProfile, setFreelancerProfile] = useState<Record<string, unknown> | null>(null);
+  const [_jobPosterProfile, setJobPosterProfile] = useState<Record<string, unknown> | null>(null);
   
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -93,7 +94,7 @@ export default function Profile() {
   // Load specialized profile data if user type is selected
   useEffect(() => {
     const fetchSpecializedProfile = async () => {
-      if (!user) return;
+      if (!user) {return;}
       
       if (profile?.user_type === "freelancer") {
         const { data, error } = await supabase
@@ -140,7 +141,7 @@ export default function Profile() {
       await updateProfile(data);
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.error(error);
+      logException(error, "Profile.onProfileSubmit");
       toast.error("Failed to update profile");
     } finally {
       setIsSubmitting(false);
@@ -148,7 +149,7 @@ export default function Profile() {
   };
 
   const onFreelancerSubmit = async (data: FreelancerFormValues) => {
-    if (!user) return;
+    if (!user) {return;}
     
     try {
       setIsSubmitting(true);
@@ -169,10 +170,10 @@ export default function Profile() {
           updated_at: new Date().toISOString(),
         });
       
-      if (error) throw error;
+      if (error) {throw error;}
       toast.success("Freelancer profile updated successfully");
     } catch (error) {
-      console.error(error);
+      logException(error, "Profile.onFreelancerSubmit");
       toast.error("Failed to update freelancer profile");
     } finally {
       setIsSubmitting(false);
@@ -180,7 +181,7 @@ export default function Profile() {
   };
 
   const onJobPosterSubmit = async (data: JobPosterFormValues) => {
-    if (!user) return;
+    if (!user) {return;}
     
     try {
       setIsSubmitting(true);
@@ -196,10 +197,10 @@ export default function Profile() {
           updated_at: new Date().toISOString(),
         });
       
-      if (error) throw error;
+      if (error) {throw error;}
       toast.success("Business profile updated successfully");
     } catch (error) {
-      console.error(error);
+      logException(error, "Profile.onJobPosterSubmit");
       toast.error("Failed to update business profile");
     } finally {
       setIsSubmitting(false);

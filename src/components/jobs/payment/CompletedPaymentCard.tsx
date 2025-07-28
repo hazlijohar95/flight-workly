@@ -16,7 +16,7 @@ export default function CompletedPaymentCard({
   transaction, 
   currency,
   isFreelancer 
-}: CompletedPaymentCardProps) {
+}: CompletedPaymentCardProps): JSX.Element {
   return (
     <Card>
       <CardHeader className="bg-green-50 border-b">

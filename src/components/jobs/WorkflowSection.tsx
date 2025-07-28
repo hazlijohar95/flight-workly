@@ -8,7 +8,7 @@ interface WorkflowSectionProps {
   onStatusUpdate: () => void;
 }
 
-export default function WorkflowSection({ job, bid, onStatusUpdate }: WorkflowSectionProps) {
+export default function WorkflowSection({ job, bid, onStatusUpdate }: WorkflowSectionProps): JSX.Element | null {
   if (job.status !== "in_progress" && job.status !== "complete") {
     return null;
   }

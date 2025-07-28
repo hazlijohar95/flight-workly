@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,52 +15,56 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { logException } from "@/utils/logger";
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
+const formSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
 });
 
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+type FormData = z.infer<typeof formSchema>;
 
-export default function ForgotPassword() {
+export default function ForgotPassword(): JSX.Element {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const { resetPassword } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
 
-  const form = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
   });
 
-  const onSubmit = async (data: ForgotPasswordFormValues) => {
+  const onSubmit = async (data: FormData): Promise<void> => {
+    setIsSubmitting(true);
     try {
-      setIsLoading(true);
       await resetPassword(data.email);
-      setEmailSent(true);
-    } catch (error) {
-      console.error(error);
+      setIsSubmitted(true);
+    } catch (error: unknown) {
+      logException(error, 'ForgotPassword.onSubmit');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  if (emailSent) {
+  if (isSubmitted) {
     return (
-      <div className="text-center">
-        <h2 className="text-2xl font-bold">Check your email</h2>
-        <p className="mt-4 text-gray-600">
-          We've sent a password reset link to your email address. Please check your
-          inbox and follow the instructions.
-        </p>
-        <Button
-          className="mt-6"
-          variant="outline"
-          onClick={() => setEmailSent(false)}
-        >
-          Try another email
-        </Button>
+      <div>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Check your email</h2>
+          <p className="text-sm text-gray-600 mt-2">
+            We've sent you a password reset link
+          </p>
+        </div>
+        
+        <div className="mt-6 text-center">
+          <Link
+            to="/auth/login"
+            className="text-[#FF4081] hover:underline"
+          >
+            Back to login
+          </Link>
+        </div>
       </div>
     );
   }
@@ -70,7 +74,7 @@ export default function ForgotPassword() {
       <div className="text-center">
         <h2 className="text-2xl font-bold">Reset your password</h2>
         <p className="text-sm text-gray-600 mt-2">
-          Enter your email and we'll send you a reset link
+          Enter your email address and we'll send you a reset link
         </p>
       </div>
 
@@ -83,7 +87,12 @@ export default function ForgotPassword() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} />
+                  <Input
+                    placeholder="you@example.com"
+                    type="email"
+                    autoComplete="email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -93,17 +102,18 @@ export default function ForgotPassword() {
           <Button
             type="submit"
             className="w-full bg-[#121212] hover:bg-black"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            {isLoading ? "Sending..." : "Send Reset Link"}
+            {isSubmitting ? "Sending..." : "Send Reset Link"}
           </Button>
 
           <div className="text-center text-sm">
+            Remember your password?{" "}
             <Link
               to="/auth/login"
               className="text-[#FF4081] hover:underline"
             >
-              Back to login
+              Sign in
             </Link>
           </div>
         </form>

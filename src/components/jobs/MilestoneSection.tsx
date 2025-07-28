@@ -10,7 +10,7 @@ interface MilestoneSectionProps {
   onUpdateJob: () => void;
 }
 
-export default function MilestoneSection({ job, isOwner, onUpdateJob }: MilestoneSectionProps) {
+export default function MilestoneSection({ job, isOwner, onUpdateJob }: MilestoneSectionProps): JSX.Element | null {
   // Don't show anything in the bidding phase if not the owner
   if (job.status === "open" && !isOwner) {
     return null;

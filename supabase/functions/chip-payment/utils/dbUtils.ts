@@ -5,7 +5,7 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.29.0";
 export async function getTransactionData(
   supabase: SupabaseClient,
   transactionId: string
-): Promise<{ data: any; error: string | null }> {
+): Promise<{ data: Record<string, unknown> | null; error: string | null }> {
   const { data, error } = await supabase
     .from('transactions')
     .select('*, bids(*)')
@@ -24,7 +24,7 @@ export async function getTransactionData(
 export async function getFreelancerData(
   supabase: SupabaseClient,
   payeeId: string
-): Promise<{ data: any; error: string | null }> {
+): Promise<{ data: Record<string, unknown> | null; error: string | null }> {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -45,7 +45,7 @@ export async function updateTransactionStatus(
   transactionId: string,
   sendInstructionId: string,
   status: string = 'disbursed'
-): Promise<{ error: any }> {
+): Promise<{ error: Record<string, unknown> | null }> {
   const { error } = await supabase
     .from('transactions')
     .update({ 
@@ -69,7 +69,7 @@ export async function updateJobStatus(
   jobId: string,
   status: string = 'complete',
   paymentStatus: string = 'released'
-): Promise<{ error: any }> {
+): Promise<{ error: Record<string, unknown> | null }> {
   const { error } = await supabase
     .from('jobs')
     .update({ status, payment_status: paymentStatus })

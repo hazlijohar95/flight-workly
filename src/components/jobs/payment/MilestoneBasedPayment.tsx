@@ -1,8 +1,7 @@
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Job, Bid, Transaction, Milestone } from "@/types/job";
+import { Job, Bid, Milestone } from "@/types/job";
 import MilestonePaymentList from "./MilestonePaymentList";
 import PaymentErrorBoundary from "./PaymentErrorBoundary";
 
@@ -22,9 +21,9 @@ export default function MilestoneBasedPayment({
   isFreelancer,
   onInitiatePayment,
   onPaymentComplete
-}: MilestoneBasedPaymentProps) {
+}: MilestoneBasedPaymentProps): JSX.Element | null {
   // Fetch milestones
-  const { data: milestones, error, isLoading, refetch } = useQuery({
+  const { data: milestones, isLoading, refetch } = useQuery({
     queryKey: ["milestones", job.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -33,7 +32,9 @@ export default function MilestoneBasedPayment({
         .eq("job_id", job.id)
         .order("order_index", { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       return data as Milestone[];
     },
     enabled: !!job.uses_milestones,

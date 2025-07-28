@@ -30,7 +30,7 @@ const ConnectionLines = ({ reduced = false }: ConnectionLinesProps) => {
   }, [reduced]);
   
   useFrame(({ clock }) => {
-    if (!lineRef.current) return;
+    if (!lineRef.current) {return;}
     
     const time = clock.getElapsedTime();
     lineRef.current.rotation.z = time * (reduced ? 0.03 : 0.05);

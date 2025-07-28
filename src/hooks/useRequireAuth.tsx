@@ -18,7 +18,7 @@ export function useRequireAuth({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoading) return; // Wait for auth to initialize
+    if (isLoading) {return;} // Wait for auth to initialize
     
     // Not logged in
     if (!user) {

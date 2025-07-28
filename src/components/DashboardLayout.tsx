@@ -1,17 +1,13 @@
 
 import { useEffect, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Outlet } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
 import { Menu, User, LayoutDashboard, Settings, LogOut, Briefcase } from "lucide-react";
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout(): JSX.Element {
   const { user, profile, signOut, isAdmin } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -212,7 +208,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Content */}
       <div className="md:pl-64">
         <main className="p-4 md:p-8">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

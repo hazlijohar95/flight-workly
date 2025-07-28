@@ -9,7 +9,7 @@ interface JobDetailsProps {
   categoryLabel: string;
 }
 
-export default function JobDetails({ job, categoryLabel }: JobDetailsProps) {
+export default function JobDetails({ job, categoryLabel: _categoryLabel }: JobDetailsProps): JSX.Element {
   // Format dates
   const createdDate = format(new Date(job.created_at), "PPP");
   const deadlineDate = format(new Date(job.deadline), "PPP");

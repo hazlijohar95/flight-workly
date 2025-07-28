@@ -6,6 +6,7 @@ import PaymentErrorBoundary from "./payment/PaymentErrorBoundary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { logDebug } from "@/utils/logger";
 
 interface PaymentInfoSectionProps {
   job: Job | null;
@@ -23,7 +24,7 @@ export default function PaymentInfoSection({
   isOwner, 
   isFreelancer, 
   onPaymentComplete 
-}: PaymentInfoSectionProps) {
+}: PaymentInfoSectionProps): JSX.Element | null {
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Handle component errors outside the error boundary
@@ -32,26 +33,26 @@ export default function PaymentInfoSection({
   }
   
   // For debugging
-  console.log("PaymentInfoSection - Job status:", job.status);
-  console.log("PaymentInfoSection - Payment status:", job.payment_status);
-  console.log("PaymentInfoSection - Is owner:", isOwner);
-  console.log("PaymentInfoSection - Bid:", bid);
+  logDebug("PaymentInfoSection - Job status", "PaymentInfoSection", { status: job.status });
+  logDebug("PaymentInfoSection - Payment status", "PaymentInfoSection", { paymentStatus: job.payment_status });
+  logDebug("PaymentInfoSection - Is owner", "PaymentInfoSection", { isOwner });
+  logDebug("PaymentInfoSection - Bid", "PaymentInfoSection", { bid });
   
   // Check access permissions early - show for job owners when job is in_progress
   const hasAccess = isOwner || (isFreelancer && bid?.user_id === bid?.user_id);
   
   // Only show payment section for in_progress jobs
   if (!hasAccess || job.status !== 'in_progress') {
-    console.log("PaymentInfoSection - No access or job not in progress");
+    logDebug("PaymentInfoSection - No access or job not in progress", "PaymentInfoSection", { hasAccess, status: job.status });
     return null;
   }
   
-  const handlePaymentError = () => {
+  const handlePaymentError = (): void => {
     setIsProcessing(false);
     toast.error("There was a problem processing your payment request");
   };
   
-  const handlePaymentComplete = () => {
+  const handlePaymentComplete = (): void => {
     setIsProcessing(false);
     if (onPaymentComplete) {
       onPaymentComplete();

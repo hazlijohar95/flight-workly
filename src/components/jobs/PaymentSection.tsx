@@ -5,6 +5,7 @@ import PaymentProcessor from "./payment/PaymentProcessor";
 import MilestoneBasedPayment from "./payment/MilestoneBasedPayment";
 import StandardPaymentHandler from "./payment/StandardPaymentHandler";
 import PaymentErrorBoundary from "./payment/PaymentErrorBoundary";
+import { logException } from "@/utils/logger";
 
 interface PaymentSectionProps {
   job: Job;
@@ -20,7 +21,7 @@ export default function PaymentSection({
   transaction, 
   onPaymentComplete,
   onPaymentError
-}: PaymentSectionProps) {
+}: PaymentSectionProps): JSX.Element | null {
   const { user, profile } = useAuth();
   
   // We need the accepted bid for payment
@@ -36,23 +37,31 @@ export default function PaymentSection({
       <PaymentProcessor job={job} bid={bid} user={user} profile={profile}>
         {({ handleInitiatePayment, handleReleasePayment, isProcessing }) => {
           // Create wrapped payment handlers that include error handling
-          const initiatePayment = async (milestoneId?: string) => {
+          const initiatePayment = async (milestoneId?: string): Promise<void> => {
             try {
               await handleInitiatePayment(milestoneId);
-              if (onPaymentComplete) onPaymentComplete();
+              if (onPaymentComplete) {
+                onPaymentComplete();
+              }
             } catch (error) {
-              console.error("Payment initiation error:", error);
-              if (onPaymentError) onPaymentError();
+              logException(error, "PaymentSection.initiatePayment");
+              if (onPaymentError) {
+                onPaymentError();
+              }
             }
           };
           
-          const releasePayment = async () => {
+          const releasePayment = async (): Promise<void> => {
             try {
               await handleReleasePayment();
-              if (onPaymentComplete) onPaymentComplete();
+              if (onPaymentComplete) {
+                onPaymentComplete();
+              }
             } catch (error) {
-              console.error("Payment release error:", error);
-              if (onPaymentError) onPaymentError();
+              logException(error, "PaymentSection.releasePayment");
+              if (onPaymentError) {
+                onPaymentError();
+              }
             }
           };
           

@@ -1,13 +1,19 @@
 
 import MilestoneForm from "./MilestoneForm";
-import { Job } from "@/types/job";
+
+interface MilestoneFormValues {
+  title: string;
+  description?: string;
+  amount: string;
+  due_date?: Date;
+}
 
 interface MilestoneFormContainerProps {
   showAddForm: boolean;
   jobId: string;
   jobBudget: number;
   isSubmitting: boolean;
-  onSubmit: (values: any) => Promise<void>;
+  onSubmit: (values: MilestoneFormValues) => Promise<void>;
 }
 
 export default function MilestoneFormContainer({
@@ -16,7 +22,7 @@ export default function MilestoneFormContainer({
   jobBudget,
   isSubmitting,
   onSubmit
-}: MilestoneFormContainerProps) {
+}: MilestoneFormContainerProps): JSX.Element | null {
   if (!showAddForm) {
     return null;
   }

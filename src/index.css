@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -87,6 +89,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.6;
   }
 
   /* Custom classes */
@@ -183,4 +188,77 @@
 
 .social-icon:hover svg {
   animation: icon-bounce 0.6s ease;
+}
+
+/* Frosted glass effect */
+.frosted-glass {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Network connection lines */
+.network-line {
+  stroke: rgba(156, 163, 175, 0.3);
+  stroke-width: 1px;
+  stroke-dasharray: 3, 3;
+  animation: dash 15s linear infinite;
+}
+
+/* Floating animation for avatars */
+.floating-avatar {
+  animation: float 8s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.floating-avatar:nth-child(2) {
+  animation-delay: -1.5s;
+}
+
+.floating-avatar:nth-child(3) {
+  animation-delay: -3s;
+}
+
+.floating-avatar:nth-child(4) {
+  animation-delay: -4.5s;
+}
+
+.floating-avatar:nth-child(5) {
+  animation-delay: -6s;
+}
+
+.floating-avatar:nth-child(6) {
+  animation-delay: -7.5s;
+}
+
+.floating-avatar:nth-child(7) {
+  animation-delay: -9s;
+}
+
+.floating-avatar:nth-child(8) {
+  animation-delay: -10.5s;
+}
+
+.floating-avatar:nth-child(9) {
+  animation-delay: -12s;
+}
+
+.floating-avatar:nth-child(10) {
+  animation-delay: -13.5s;
+}
+
+.floating-avatar:nth-child(11) {
+  animation-delay: -15s;
+}
+
+.floating-avatar:nth-child(12) {
+  animation-delay: -16.5s;
+}
+
+/* Enhanced hover effects */
+.floating-avatar:hover {
+  transform: scale(1.15) translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }

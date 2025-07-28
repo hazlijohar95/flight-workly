@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import PostJobForm from "@/components/jobs/PostJobForm";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
-export default function NewJobPage() {
+export default function NewJobPage(): JSX.Element {
   const { profile } = useRequireAuth();
 
   if (!profile || profile.user_type !== "job_poster") {

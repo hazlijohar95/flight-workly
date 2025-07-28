@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CheckCircle } from "lucide-react";
 import { Job, Bid, Milestone, Transaction } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
+import { logException } from "@/utils/logger";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import MilestoneCard from "./milestone/MilestoneCard";
 import MilestoneProgressBar from "./milestone/MilestoneProgressBar";
@@ -27,7 +28,7 @@ export default function MilestonePaymentList({
   isFreelancer,
   onInitiatePayment,
   onPaymentComplete
-}: MilestonePaymentListProps) {
+}: MilestonePaymentListProps): JSX.Element {
   const [payingMilestoneId, setPayingMilestoneId] = useState<string | null>(null);
   const [releasingTransactionId, setReleasingTransactionId] = useState<string | null>(null);
   
@@ -41,12 +42,12 @@ export default function MilestonePaymentList({
         .eq("job_id", job.id)
         .not("milestone_id", "is", null);
         
-      if (error) throw error;
+      if (error) {throw error;}
       return data as Transaction[];
     },
   });
 
-  const handlePayMilestone = async (milestoneId: string) => {
+  const handlePayMilestone = async (milestoneId: string): Promise<void> => {
     setPayingMilestoneId(milestoneId);
     try {
       await onInitiatePayment(milestoneId);
@@ -55,8 +56,8 @@ export default function MilestonePaymentList({
     }
   };
   
-  const handleReleaseMilestonePayment = async (transactionId: string) => {
-    if (!isJobOwner) return;
+  const handleReleaseMilestonePayment = async (transactionId: string): Promise<void> => {
+    if (!isJobOwner) {return;}
     
     setReleasingTransactionId(transactionId);
     try {
@@ -95,17 +96,20 @@ export default function MilestonePaymentList({
       if (onPaymentComplete) {
         onPaymentComplete();
       }
-    } catch (error) {
-      console.error("Payment release error:", error);
-      toast.error(error.message || "Failed to release payment");
+    } catch (error: unknown) {
+      logException(error, "MilestonePaymentList.handleReleaseMilestonePayment");
+      const errorMessage = error instanceof Error ? error.message : "Failed to release payment";
+      toast.error(errorMessage);
     } finally {
       setReleasingTransactionId(null);
     }
   };
 
   // Function to get transaction status for a milestone
-  const getMilestoneTransaction = (milestoneId: string) => {
-    if (!transactions) return null;
+  const getMilestoneTransaction = (milestoneId: string): Transaction | null => {
+    if (!transactions) {
+      return null;
+    }
     return transactions.find(t => t.milestone_id === milestoneId) || null;
   };
 

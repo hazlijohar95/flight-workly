@@ -1,11 +1,11 @@
 
-import { generateChecksum, getChipApiKey, CHIP_SEND_API_URL } from "../lib/chip.ts";
+import { getChipApiKey, CHIP_SEND_API_URL } from "../lib/chip.ts";
 
 // Check available balance in CHIP account
 export async function checkAvailableBalance(
   epoch: number,
   checksum: string
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   const response = await fetch(`${CHIP_SEND_API_URL}accounts`, {
     method: 'GET',
     headers: {
@@ -25,9 +25,9 @@ export async function checkAvailableBalance(
 export async function addBankAccount(
   epoch: number,
   checksum: string,
-  freelancerData: any,
+  freelancerData: Record<string, unknown>,
   jobId: string
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   const response = await fetch(`${CHIP_SEND_API_URL}bank_accounts`, {
     method: 'POST',
     headers: {
@@ -61,10 +61,10 @@ export async function addBankAccount(
 export async function createSendInstruction(
   epoch: number,
   checksum: string,
-  transactionData: any,
+  transactionData: Record<string, unknown>,
   bankAccountId: string,
   jobId: string
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   const response = await fetch(`${CHIP_SEND_API_URL}send_instructions`, {
     method: 'POST',
     headers: {

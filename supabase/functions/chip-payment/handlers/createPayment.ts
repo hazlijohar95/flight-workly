@@ -5,8 +5,8 @@ import { CHIP_API_URL } from "../lib/chip.ts";
 export async function handleCreatePayment(
   req: Request,
   supabase: SupabaseClient,
-  user: any,
-  requestData: any,
+  user: Record<string, unknown>,
+  requestData: Record<string, unknown>,
   corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { 
@@ -18,7 +18,16 @@ export async function handleCreatePayment(
     buyerName, 
     buyerEmail, 
     reference 
-  } = requestData;
+  } = requestData as {
+    jobId: string;
+    bidId: string;
+    milestoneId?: string;
+    amount: number;
+    currency?: string;
+    buyerName: string;
+    buyerEmail: string;
+    reference: string;
+  };
   
   // Calculate platform fee (5%)
   const feeAmount = parseFloat((amount * 0.05).toFixed(2));
@@ -113,6 +122,6 @@ export async function handleCreatePayment(
     { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 }
 
-function getChipApiKey() {
+function getChipApiKey(): string | undefined {
   return Deno.env.get('CHIP_API_KEY');
 }

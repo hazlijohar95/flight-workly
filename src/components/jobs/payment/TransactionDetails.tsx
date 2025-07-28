@@ -8,7 +8,7 @@ interface TransactionDetailsProps {
   compact?: boolean;
 }
 
-export default function TransactionDetails({ bid, transaction, currency, compact = false }: TransactionDetailsProps) {
+export default function TransactionDetails({ bid, transaction, currency, compact = false }: TransactionDetailsProps): JSX.Element {
   // For milestone payments, we use the transaction amount instead of the bid amount
   const amount = transaction ? Number(transaction.amount) : Number(bid.fee);
   const feeAmount = transaction ? Number(transaction.fee_amount) : (amount * 0.05);

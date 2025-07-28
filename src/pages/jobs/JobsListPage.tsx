@@ -4,19 +4,20 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import DashboardLayout from "@/components/DashboardLayout";
+
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Job } from "@/types/job";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { logException } from "@/utils/logger";
 
-export default function JobsListPage() {
+export default function JobsListPage(): JSX.Element {
   const { user, profile } = useRequireAuth();
   const [activeTab, setActiveTab] = useState<string>("available");
 
-  const { data: jobs, isLoading, error, refetch } = useQuery({
+  const { data: jobs, isLoading, error, refetch: _refetch } = useQuery({
     queryKey: ["jobs", activeTab, user?.id],
     queryFn: async () => {
       try {
@@ -31,30 +32,36 @@ export default function JobsListPage() {
           } 
           // For job posters: show their own jobs
           else if (profile?.user_type === "job_poster") {
-            query = query.eq("user_id", user?.id);
+            query = query.eq("user_id", user?.id || "");
           }
         } else if (activeTab === "applied" && profile?.user_type === "freelancer") {
           // For freelancers: show jobs they've bid on
           const { data: bids, error: bidsError } = await supabase
             .from("bids")
             .select("job_id")
-            .eq("user_id", user?.id);
+            .eq("user_id", user?.id || "");
 
-          if (bidsError) throw bidsError;
+          if (bidsError) {
+            throw bidsError;
+          }
           
           const jobIds = bids.map(bid => bid.job_id);
           
-          if (jobIds.length === 0) return [];
+          if (jobIds.length === 0) {
+            return [];
+          }
           
           query = query.in("id", jobIds);
         }
         
         const { data, error } = await query.order("created_at", { ascending: false });
         
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
         return data as Job[];
-      } catch (error: any) {
-        console.error("Error fetching jobs:", error);
+      } catch (error: unknown) {
+        logException(error, "JobsListPage.queryFn");
         toast.error("Failed to load jobs");
         return [];
       }
@@ -76,8 +83,7 @@ export default function JobsListPage() {
   const isJobPoster = profile.user_type === "job_poster";
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
@@ -159,6 +165,5 @@ export default function JobsListPage() {
           )}
         </Tabs>
       </div>
-    </DashboardLayout>
   );
 }

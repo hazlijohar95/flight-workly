@@ -1,162 +1,128 @@
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { Job, Bid } from "@/types/job";
-import { getFreelancerData, getAuthSession, createChipPayment, releaseChipPayment } from "@/utils/paymentUtils";
+import { useState, useCallback } from 'react';
+import { logException, logInfo } from '@/utils/logger';
+import { getFreelancerData, getAuthSession, createChipPayment, releaseChipPayment } from '@/utils/paymentUtils';
 
-export function usePayment(job: Job, bid: Bid, user: any, profile: any) {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentError, setPaymentError] = useState<Error | null>(null);
-  
-  // Reset error state
-  const resetError = () => {
-    setPaymentError(null);
-  };
-  
-  const initiatePayment = async (milestoneId?: string) => {
-    console.log("Initiating payment for job:", job.id, "and bid:", bid.id);
-    console.log("User:", user?.id, "Profile:", profile);
-    
-    if (!user || !profile) {
-      const error = new Error("You must be logged in to make payments");
-      toast.error(error.message);
-      setPaymentError(error);
-      throw error;
-    }
-    
-    // Make sure bid is accepted before proceeding
-    if (bid.status !== 'accepted') {
-      const error = new Error("You must accept a bid before making a payment");
-      toast.error(error.message);
-      setPaymentError(error);
-      throw error;
-    }
-    
-    resetError();
-    setIsProcessing(true);
-    
+interface PaymentState {
+  isLoading: boolean;
+  error: string | null;
+  transactionId: string | null;
+}
+
+interface PaymentData {
+  amount: number;
+  currency: string;
+  jobId: string;
+  freelancerId: string;
+  description?: string;
+}
+
+export function usePayment() {
+  const [state, setState] = useState<PaymentState>({
+    isLoading: false,
+    error: null,
+    transactionId: null,
+  });
+
+  const createPayment = useCallback(async (paymentData: PaymentData): Promise<boolean> => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
     try {
       // Get freelancer data
-      const { data: freelancerData, error: freelancerError } = await getFreelancerData(bid.user_id);
-      
-      if (freelancerError) {
-        const error = new Error(`Failed to retrieve freelancer data: ${freelancerError.message}`);
-        setPaymentError(error);
-        throw error;
+      const freelancerData = await getFreelancerData(paymentData.freelancerId);
+      if (!freelancerData) {
+        throw new Error('Freelancer data not found');
       }
-      
-      // Get auth token
+
+      // Get auth session
       const session = await getAuthSession();
-      
-      // Determine payment amount - either milestone or full bid
-      let paymentAmount = bid.fee;
-      let paymentReference = `Job ${job.id.substring(0, 8)}`;
-      
-      if (milestoneId) {
-        const { data: milestoneData, error: milestoneError } = await supabase
-          .from("milestones")
-          .select("*")
-          .eq("id", milestoneId)
-          .single();
-          
-        if (milestoneError) {
-          const error = new Error(`Failed to retrieve milestone data: ${milestoneError.message}`);
-          setPaymentError(error);
-          throw error;
-        }
-        
-        if (milestoneData) {
-          paymentAmount = Number(milestoneData.amount);
-          paymentReference = `Milestone: ${milestoneData.title} - ${job.id.substring(0, 8)}`;
-        }
-      }
-      
-      // Create payment request data
-      const paymentData = {
-        jobId: job.id,
-        bidId: bid.id,
-        milestoneId: milestoneId || null,
-        amount: paymentAmount,
-        currency: job.currency,
-        buyerName: `${profile.first_name} ${profile.last_name}`,
-        buyerEmail: user.email,
-        payeeId: bid.user_id,
-        reference: paymentReference
-      };
-      
-      console.log("Payment data:", paymentData);
-      
-      // Call payment API
+
+      // Create payment
       const result = await createChipPayment(session, paymentData);
-      console.log("Payment result:", result);
       
-      // Redirect to payment page
-      if (result && result.payment_url) {
-        window.location.href = result.payment_url;
-      } else {
-        throw new Error("No payment URL returned from payment provider");
-      }
-      
-    } catch (error) {
-      console.error("Payment initiation error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown payment error";
-      toast.error(errorMessage || "Failed to process payment");
-      
-      // Store error state
-      setPaymentError(error instanceof Error ? error : new Error(errorMessage || "Unknown payment error"));
-      
-      // Rethrow for component error handling
-      throw error;
-    } finally {
-      setIsProcessing(false);
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        transactionId: result.transactionId 
+      }));
+
+      logInfo('Payment created successfully', 'usePayment', {
+        transactionId: result.transactionId,
+        amount: paymentData.amount,
+        jobId: paymentData.jobId,
+      });
+
+      return true;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Payment creation failed';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+
+      logException(error, 'usePayment.createPayment');
+      return false;
     }
-  };
-  
-  const releasePayment = async () => {
-    if (!user) {
-      const error = new Error("You must be logged in to release payments");
-      toast.error(error.message);
-      setPaymentError(error);
-      throw error;
-    }
-    
-    resetError();
-    setIsProcessing(true);
-    
+  }, []);
+
+  const releasePayment = useCallback(async (transactionId: string, jobId: string): Promise<boolean> => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
     try {
-      // Get auth token
       const session = await getAuthSession();
-      
-      // Call release payment API
-      const result = await releaseChipPayment(session, job.id, job.id);
-      
-      if (result.warning) {
-        toast.warning("Payment marked as released, but there was an issue with fund disbursement.");
-      } else {
-        toast.success("Payment released successfully to freelancer!");
-      }
-      
-    } catch (error) {
-      console.error("Payment release error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      toast.error(errorMessage || "Failed to release payment");
-      
-      // Store error state
-      setPaymentError(error instanceof Error ? error : new Error(errorMessage || "Unknown payment error"));
-      
-      // Rethrow for component error handling
-      throw error;
-    } finally {
-      setIsProcessing(false);
+      await releaseChipPayment(session, transactionId, jobId);
+
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        transactionId: null 
+      }));
+
+      logInfo('Payment released successfully', 'usePayment', {
+        transactionId,
+        jobId,
+      });
+
+      return true;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Payment release failed';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+
+      logException(error, 'usePayment.releasePayment');
+      return false;
     }
-  };
+  }, []);
+
+  const resetPayment = useCallback((): void => {
+    setState({
+      isLoading: false,
+      error: null,
+      transactionId: null,
+    });
+  }, []);
+
+  const getPaymentStatus = useCallback(async (transactionId: string): Promise<string | null> => {
+    try {
+      // TODO: Implement payment status check
+      // This would typically call an API to check the payment status
+      logInfo('Checking payment status', 'usePayment', { transactionId });
+      return 'pending';
+    } catch (error: unknown) {
+      logException(error, 'usePayment.getPaymentStatus');
+      return null;
+    }
+  }, []);
 
   return {
-    isProcessing,
-    paymentError,
-    resetError,
-    initiatePayment,
-    releasePayment
+    ...state,
+    createPayment,
+    releasePayment,
+    resetPayment,
+    getPaymentStatus,
   };
 }

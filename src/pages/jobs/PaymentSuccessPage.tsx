@@ -10,8 +10,9 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { Job, Transaction, Milestone } from "@/types/job";
+import { logException } from "@/utils/logger";
 
-export default function PaymentSuccessPage() {
+export default function PaymentSuccessPage(): JSX.Element {
   const { jobId } = useParams<{ jobId: string }>();
   const { user } = useRequireAuth({ requireBetaAccess: true });
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function PaymentSuccessPage() {
   const { data: transaction, isLoading: isLoadingTransaction } = useQuery({
     queryKey: ["transaction", jobId],
     queryFn: async () => {
-      if (!jobId || !user) return null;
+      if (!jobId || !user) {return null;}
       
       const { data, error } = await supabase
         .from("transactions")
@@ -30,16 +31,16 @@ export default function PaymentSuccessPage() {
         .order("created_at", { ascending: false })
         .limit(1);
         
-      if (error) throw error;
+      if (error) {throw error;}
       return data[0] as Transaction | null;
     },
     enabled: !!jobId && !!user,
   });
   
-  const { data: job } = useQuery({
+  const { data: _job } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      if (!jobId) return null;
+      if (!jobId) {return null;}
       
       const { data, error } = await supabase
         .from("jobs")
@@ -47,7 +48,7 @@ export default function PaymentSuccessPage() {
         .eq("id", jobId)
         .single();
         
-      if (error) throw error;
+      if (error) {throw error;}
       return data as Job;
     },
     enabled: !!jobId,
@@ -57,7 +58,7 @@ export default function PaymentSuccessPage() {
   const { data: milestone } = useQuery({
     queryKey: ["milestone", transaction?.milestone_id],
     queryFn: async () => {
-      if (!transaction?.milestone_id) return null;
+      if (!transaction?.milestone_id) {return null;}
       
       const { data, error } = await supabase
         .from("milestones")
@@ -65,7 +66,7 @@ export default function PaymentSuccessPage() {
         .eq("id", transaction.milestone_id)
         .single();
         
-      if (error) throw error;
+      if (error) {throw error;}
       return data as Milestone;
     },
     enabled: !!transaction?.milestone_id,
@@ -74,7 +75,7 @@ export default function PaymentSuccessPage() {
   // Update payment status if needed
   useEffect(() => {
     const checkPaymentStatus = async () => {
-      if (!transaction || !transaction.chip_transaction_id || !user) return;
+      if (!transaction || !transaction.chip_transaction_id || !user) {return;}
       
       try {
         // Get auth token for the edge function
@@ -107,7 +108,7 @@ export default function PaymentSuccessPage() {
         }
         
       } catch (error) {
-        console.error("Error checking payment status:", error);
+        logException(error, "PaymentSuccessPage.checkPaymentStatus");
       }
     };
     
