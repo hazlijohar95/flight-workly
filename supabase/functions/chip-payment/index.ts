@@ -57,7 +57,23 @@ serve(async (req) => {
     }
     
   } catch (error) {
-    console.error('Server error:', error);
+    // Log error without exposing sensitive information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // In production, this would be sent to a logging service
+    // For now, we'll use a structured approach
+    const logData = {
+      timestamp: new Date().toISOString(),
+      level: 'ERROR',
+      message: 'Server error in chip-payment function',
+      error: errorMessage,
+      action: action || 'unknown',
+      ...(errorStack && { stack: errorStack })
+    };
+    
+    // In a real implementation, send to logging service
+    // await sendToLoggingService(logData);
     return new Response(JSON.stringify({ error: 'Internal server error', details: error.message }), 
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }

@@ -85,8 +85,9 @@ export default function PaymentSuccessPage(): JSX.Element {
           throw new Error("No active session found");
         }
         
-        // Call our edge function to check payment status
-        const response = await fetch(`https://tjdnpprinmfopgcrqtbe.supabase.co/functions/v1/chip-payment/check-payment-status`, {
+            // Call our edge function to check payment status
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(`${supabaseUrl}/functions/v1/chip-payment/check-payment-status`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

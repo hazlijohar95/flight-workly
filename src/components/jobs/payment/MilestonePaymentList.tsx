@@ -68,8 +68,9 @@ export default function MilestonePaymentList({
         throw new Error("No active session found");
       }
       
-      // Call our edge function to release payment
-      const response = await fetch(`https://tjdnpprinmfopgcrqtbe.supabase.co/functions/v1/chip-payment/release-payment`, {
+          // Call our edge function to release payment
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(`${supabaseUrl}/functions/v1/chip-payment/release-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
