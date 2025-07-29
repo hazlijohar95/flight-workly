@@ -7,7 +7,22 @@ import { CONFIG } from '@/constants/config';
 // import { supabase } from "@/integrations/supabase/client";
 
 // Create Supabase client with fallback for development
-const supabaseUrl = CONFIG.SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = CONFIG.SUPABASE_ANON_KEY || 'placeholder_key_for_development';
+const supabaseUrl = CONFIG.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = CONFIG.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_key_for_development';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+// Check if we have valid Supabase credentials
+const hasValidCredentials = supabaseUrl && 
+  supabaseKey && 
+  supabaseUrl !== 'https://placeholder.supabase.co' && 
+  supabaseKey !== 'placeholder_key_for_development';
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
+
+// Export a flag to check if Supabase is properly configured
+export const isSupabaseConfigured = hasValidCredentials;

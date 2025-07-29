@@ -8,6 +8,7 @@ import NetworkPattern from '../components/NetworkPattern';
 import ProfileBubbleSimple from '../components/ProfileBubbleSimple';
 import OrbitPath from '../components/OrbitPath';
 import Logo from '../components/Logo';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 
 const LandingPage = (): JSX.Element => {
   const [_isLoaded, setIsLoaded] = useState(false);
@@ -18,7 +19,12 @@ const LandingPage = (): JSX.Element => {
   }, []);
   
   const handleGetStarted = (): void => {
-    navigate('/auth/signup');
+    if (isSupabaseConfigured) {
+      navigate('/auth/signup');
+    } else {
+      // Show a message that authentication is not configured
+      alert('Authentication is not configured. Please set up Supabase environment variables.');
+    }
   };
   
   return (

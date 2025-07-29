@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logException } from '@/utils/logger';
 import { 
@@ -96,6 +96,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up activity tracking
     const cleanupActivityTracking = setupActivityTracking();
+
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      console.warn('Supabase is not configured. Authentication features will be disabled.');
+      setIsLoading(false);
+      return;
+    }
 
     // First set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

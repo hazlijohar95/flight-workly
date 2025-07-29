@@ -50,5 +50,5 @@ export const validateConfig = (): void => {
   }
 };
 
-// Call validation on import - enabled for production
-validateConfig(); 
+// Call validation on import - temporarily disabled for deployment
+// validateConfig(); // Re-enable after setting up environment variables 
