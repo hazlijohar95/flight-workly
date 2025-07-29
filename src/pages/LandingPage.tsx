@@ -183,27 +183,27 @@ const LandingPage = (): JSX.Element => {
       </header>
 
       {/* Main Content with frosted glass effect */}
-      <main className="relative z-10 flex items-center justify-center min-h-screen py-12">
+      <main className="relative z-10 flex items-center justify-center min-h-screen py-8">
         {/* Central frosted glass card */}
-        <div className="relative z-20 w-full max-w-3xl mx-auto px-4">
-          <div className="backdrop-blur-xl bg-white/20 rounded-3xl shadow-2xl border border-white/40 p-12 md:p-20 text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-gray-800 mb-8 leading-tight tracking-tight">
+        <div className="relative z-20 w-full max-w-2xl mx-auto px-4">
+          <div className="backdrop-blur-xl bg-white/20 rounded-3xl shadow-2xl border border-white/40 p-8 md:p-12 text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-gray-800 mb-6 leading-tight tracking-tight">
               Hiring <span className="text-[#FF4081] font-medium">shouldn't</span> feel like begging.
             </h1>
             
-            <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-base md:text-lg text-gray-600 mb-8 max-w-xl mx-auto font-light leading-relaxed">
               Post what you need. Let skilled freelancers fight to earn it.
             </p>
             
-            <div className="mb-12">
-              <h2 className="text-xl md:text-2xl font-light text-gray-700 mb-8">
+            <div className="mb-8">
+              <h2 className="text-lg md:text-xl font-light text-gray-700 mb-6">
                 What do you need done?
               </h2>
             </div>
             
             <Button 
               onClick={handleGetStarted}
-              className="bg-black hover:bg-gray-800 text-white font-medium px-8 py-4 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-black hover:bg-gray-800 text-white font-medium px-6 py-3 rounded-xl text-base shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
               Get Started
             </Button>
