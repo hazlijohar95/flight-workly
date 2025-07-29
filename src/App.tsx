@@ -4,7 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/context/AuthContext";
+import { SecurityProvider } from "@/components/SecurityProvider";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import AuthGuard from "@/components/AuthGuard";
@@ -84,13 +86,15 @@ const App = (): JSX.Element => {
   return (
     <React.StrictMode>
       <ErrorBoundary>
-        <BrowserRouter>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <AuthProvider>
-                <Toaster />
-                <Sonner />
-                <Suspense fallback={<PageLoader />}>
+        <HelmetProvider>
+          <BrowserRouter>
+            <QueryClientProvider client={queryClient}>
+              <TooltipProvider>
+                <AuthProvider>
+                  <SecurityProvider>
+                    <Toaster />
+                    <Sonner />
+                    <Suspense fallback={<PageLoader />}>
                   <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<LandingPage />} />
@@ -154,10 +158,12 @@ const App = (): JSX.Element => {
                     <Route path="*" element={<Navigate to="/404" replace />} />
                   </Routes>
                 </Suspense>
-              </AuthProvider>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </BrowserRouter>
+                  </SecurityProvider>
+                </AuthProvider>
+              </TooltipProvider>
+            </QueryClientProvider>
+          </BrowserRouter>
+        </HelmetProvider>
       </ErrorBoundary>
     </React.StrictMode>
   );

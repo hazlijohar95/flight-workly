@@ -1,14 +1,24 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Flight Workly Robots.txt
+# https://flightworklycom.netlify.app
 
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://flightworklycom.netlify.app/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+Disallow: /internal/
+
+# Allow important pages
+Allow: /jobs/
+Allow: /auth/
+Allow: /dashboard/
+Allow: /profile/
+
+# Crawl delay (optional)
+Crawl-delay: 1

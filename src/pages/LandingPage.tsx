@@ -9,6 +9,8 @@ import ProfileBubbleSimple from '../components/ProfileBubbleSimple';
 import OrbitPath from '../components/OrbitPath';
 import Logo from '../components/Logo';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { SEO } from '@/components/SEO';
+import { pageSEO } from '@/components/SEO';
 
 const LandingPage = (): JSX.Element => {
   const [_isLoaded, setIsLoaded] = useState(false);
@@ -28,7 +30,9 @@ const LandingPage = (): JSX.Element => {
   };
   
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 font-['Inter']">
+    <>
+      <SEO {...pageSEO.home} />
+      <div className="min-h-screen relative overflow-x-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 font-['Inter']">
       {/* Background with subtle pink and gray dot patterns */}
       <div className="absolute inset-0 overflow-hidden">
         <NetworkPattern />
@@ -215,6 +219,7 @@ const LandingPage = (): JSX.Element => {
         <Footer />
       </div>
     </div>
+    </>
   );
 };
 
