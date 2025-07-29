@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { logException } from '@/utils/logger';
+import { logException, logWarn } from '@/utils/logger';
 import { 
   storeSessionData, 
   setupActivityTracking,
@@ -31,7 +31,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }): JSX.Element => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -97,12 +97,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up activity tracking
     const cleanupActivityTracking = setupActivityTracking();
 
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
-      console.warn('Supabase is not configured. Authentication features will be disabled.');
-      setIsLoading(false);
-      return;
-    }
+              // Check if Supabase is configured
+          if (!isSupabaseConfigured) {
+            logWarn('Supabase is not configured. Authentication features will be disabled.');
+            setIsLoading(false);
+            return;
+          }
 
     // First set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

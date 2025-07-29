@@ -58,38 +58,43 @@ class Logger {
           console.debug(formattedMessage);
         }
         break;
-      case LogLevel.INFO:
-        if (this.isDevelopment) {
-          console.info(formattedMessage);
-        }
-        break;
-      case LogLevel.WARN:
-        if (this.isDevelopment) {
-          console.warn(formattedMessage);
-        } else {
-          // Production: structured logging for warnings
-          console.warn(JSON.stringify({
-            level: 'WARN',
-            message: entry.message,
-            context: entry.context,
-            timestamp: entry.timestamp
-          }));
-        }
-        break;
-      case LogLevel.ERROR:
-        if (this.isDevelopment) {
-          console.error(formattedMessage);
-        } else {
-          // Production: structured logging for errors
-          console.error(JSON.stringify({
-            level: 'ERROR',
-            message: entry.message,
-            context: entry.context,
-            timestamp: entry.timestamp,
-            data: entry.data
-          }));
-        }
-        break;
+              case LogLevel.INFO:
+          if (this.isDevelopment) {
+            // eslint-disable-next-line no-console
+            console.info(formattedMessage);
+          }
+          break;
+        case LogLevel.WARN:
+          if (this.isDevelopment) {
+            // eslint-disable-next-line no-console
+            console.warn(formattedMessage);
+          } else {
+            // Production: structured logging for warnings
+            // eslint-disable-next-line no-console
+            console.warn(JSON.stringify({
+              level: 'WARN',
+              message: entry.message,
+              context: entry.context,
+              timestamp: entry.timestamp
+            }));
+          }
+          break;
+        case LogLevel.ERROR:
+          if (this.isDevelopment) {
+            // eslint-disable-next-line no-console
+            console.error(formattedMessage);
+          } else {
+            // Production: structured logging for errors
+            // eslint-disable-next-line no-console
+            console.error(JSON.stringify({
+              level: 'ERROR',
+              message: entry.message,
+              context: entry.context,
+              timestamp: entry.timestamp,
+              data: entry.data
+            }));
+          }
+          break;
     }
 
     // In production, you might want to send logs to a service like Sentry, LogRocket, etc.

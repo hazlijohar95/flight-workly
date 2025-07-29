@@ -1,14 +1,44 @@
 {
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
+  "name": "flight-workly",
+  "description": "A modern freelancing platform built with React, TypeScript, and Supabase",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
+  "author": {
+    "name": "Hazli Johar",
+    "email": "coding@hazlijohar.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hazlijohar95/flight-workly.git"
+  },
+  "keywords": [
+    "freelancing",
+    "platform",
+    "react",
+    "typescript",
+    "supabase",
+    "tailwindcss",
+    "shadcn-ui"
+  ],
+  "homepage": "https://github.com/hazlijohar95/flight-workly#readme",
+  "bugs": {
+    "url": "https://github.com/hazlijohar95/flight-workly/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"No tests specified\" && exit 0",
+    "preview": "vite preview",
+    "clean": "rm -rf dist node_modules/.vite",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.30.4",
