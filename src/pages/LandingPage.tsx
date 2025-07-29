@@ -39,120 +39,120 @@ const LandingPage = (): JSX.Element => {
       <div className="absolute inset-0 pointer-events-none">
         {/* Orbit path avatars - positioned along the dashed lines */}
         <ProfileBubbleSimple 
-          position={{ top: '25%', left: '15%' }}
-          size="3rem"
+          position={{ top: '20%', left: '12%' }}
+          size="4rem"
           color="bg-gradient-to-br from-blue-400 to-blue-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/b89a7188-4aea-414b-bdb3-032be4dee871.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '20%', left: '35%' }}
-          size="2.8rem"
+          position={{ top: '15%', left: '32%' }}
+          size="3.5rem"
           color="bg-gradient-to-br from-purple-400 to-purple-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/b9656106-61f1-411d-8d42-57fd9533067f.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '30%', left: '55%' }}
-          size="3.2rem"
+          position={{ top: '25%', left: '52%' }}
+          size="4.2rem"
           color="bg-gradient-to-br from-green-400 to-green-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/c3de960a-882f-443c-b503-eee317ff3dd8.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '45%', left: '70%' }}
-          size="2.6rem"
+          position={{ top: '40%', left: '68%' }}
+          size="3.8rem"
           color="bg-gradient-to-br from-yellow-400 to-yellow-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/ef6879c7-9026-404d-baa2-97398f17cb05.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '65%', left: '75%' }}
-          size="3rem"
+          position={{ top: '60%', left: '72%' }}
+          size="4rem"
           color="bg-gradient-to-br from-pink-400 to-pink-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/f877774b-dad1-499f-a2df-913c11800742.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '75%', left: '60%' }}
-          size="2.8rem"
+          position={{ top: '70%', left: '58%' }}
+          size="3.5rem"
           color="bg-gradient-to-br from-indigo-400 to-indigo-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/fb6b2b87-4f6a-467e-ac15-e4751120082c.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '70%', left: '35%' }}
-          size="3.2rem"
+          position={{ top: '65%', left: '32%' }}
+          size="4.2rem"
           color="bg-gradient-to-br from-orange-400 to-orange-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/350a6f2c-d389-4d7a-8d7a-32a341c540e4.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '55%', left: '20%' }}
-          size="2.6rem"
+          position={{ top: '50%', left: '18%' }}
+          size="3.8rem"
           color="bg-gradient-to-br from-teal-400 to-teal-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/6c8afcf7-37e4-4e23-8fe6-9198336e06bd.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '40%', left: '10%' }}
-          size="2.8rem"
+          position={{ top: '35%', left: '8%' }}
+          size="3.5rem"
           color="bg-gradient-to-br from-red-400 to-red-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/7974a8f3-eafe-4a53-9f87-454268c85953.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '15%', left: '25%' }}
-          size="3rem"
+          position={{ top: '10%', left: '22%' }}
+          size="4rem"
           color="bg-gradient-to-br from-emerald-400 to-emerald-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/84689890-f8e1-4057-a177-01329c0daed1.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '35%', left: '45%' }}
-          size="2.6rem"
+          position={{ top: '30%', left: '42%' }}
+          size="3.8rem"
           color="bg-gradient-to-br from-violet-400 to-violet-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/ae92b703-ef2a-43e6-acf5-9b1bf236731b.png"
         />
         
         <ProfileBubbleSimple 
-          position={{ top: '60%', left: '50%' }}
-          size="3.2rem"
+          position={{ top: '55%', left: '48%' }}
+          size="4.2rem"
           color="bg-gradient-to-br from-cyan-400 to-cyan-600"
-          opacity={0.9}
+          opacity={1.0}
           className="floating-avatar"
           isAvatar={true}
           avatarUrl="/lovable-uploads/1a6757c6-c20c-4f80-bf34-4d028160d6c8.png"

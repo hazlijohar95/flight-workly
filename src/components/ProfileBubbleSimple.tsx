@@ -41,11 +41,12 @@ export default function ProfileBubbleSimple({
         className={`rounded-full ${className} floating-avatar cursor-pointer transition-all duration-300 hover:scale-110`}
         style={style}
       >
-        <div className="w-full h-full rounded-full border-2 border-white shadow-lg overflow-hidden">
+        <div className="w-full h-full rounded-full border-3 border-white shadow-xl overflow-hidden bg-white">
           <img 
             src={avatarUrl} 
             alt="User avatar" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
+            loading="lazy"
           />
         </div>
       </div>
